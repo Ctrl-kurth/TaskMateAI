@@ -27,6 +27,7 @@ export default function TaskModal({
     subtasks: [],
   });
   const [isGeneratingSubtasks, setIsGeneratingSubtasks] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (task) {
@@ -51,10 +52,11 @@ export default function TaskModal({
 
   const handleGenerateSubtasks = async () => {
     if (!formData.title) {
-      alert('Please enter a task title first');
+      setError('Please enter a task title first');
       return;
     }
 
+    setError(null);
     setIsGeneratingSubtasks(true);
     try {
       const response = await fetch('/api/ai/breakdown', {
@@ -81,7 +83,7 @@ export default function TaskModal({
       }));
     } catch (error) {
       console.error('Error generating subtasks:', error);
-      alert('Failed to generate subtasks');
+      setError('Failed to generate subtasks. Please try again.');
     } finally {
       setIsGeneratingSubtasks(false);
     }
@@ -133,6 +135,18 @@ export default function TaskModal({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {error && (
+            <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg flex items-center justify-between">
+              <span className="text-sm">{error}</span>
+              <button 
+                type="button"
+                onClick={() => setError(null)} 
+                className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200"
+              >
+                ✕
+              </button>
+            </div>
+          )}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Title

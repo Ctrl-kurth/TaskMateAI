@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { signOut } from 'next-auth/react';
 import { Task } from '@/types';
 import KanbanBoard from '@/components/KanbanBoard';
 import TaskModal from '@/components/TaskModal';
@@ -11,6 +12,7 @@ export default function DashboardPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTasks();
@@ -78,9 +80,10 @@ export default function DashboardPage() {
 
       setIsModalOpen(false);
       setSelectedTask(null);
+      setError(null);
     } catch (error) {
       console.error('Error saving task:', error);
-      alert('Failed to save task');
+      setError('Failed to save task. Please try again.');
     }
   };
 
@@ -123,14 +126,24 @@ export default function DashboardPage() {
               TaskMate AI
             </h1>
             <div className="flex items-center gap-4">
-              <button className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+              <button 
+                className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                aria-label="Notifications"
+              >
                 <FiBell className="w-6 h-6" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </button>
-              <button className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+              <button 
+                className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                aria-label="Friends"
+              >
                 <FiUsers className="w-6 h-6" />
               </button>
-              <button className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+              <button 
+                onClick={() => signOut({ callbackUrl: '/' })}
+                className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                aria-label="Sign out"
+              >
                 <FiLogOut className="w-6 h-6" />
               </button>
             </div>
@@ -140,6 +153,14 @@ export default function DashboardPage() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {error && (
+          <div className="mb-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg flex items-center justify-between">
+            <span>{error}</span>
+            <button onClick={() => setError(null)} className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200">
+              ✕
+            </button>
+          </div>
+        )}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
