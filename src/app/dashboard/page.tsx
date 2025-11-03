@@ -402,24 +402,32 @@ export default function DashboardPage() {
               {showNotifications && (
                 <>
                   <div 
-                    className="fixed inset-0 z-40" 
+                    className="fixed inset-0 z-40 bg-black/50 md:bg-transparent" 
                     onClick={() => setShowNotifications(false)}
                   />
-                  <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[#0a0a0a] border border-gray-800 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                  <div className="fixed md:absolute top-0 md:top-auto right-0 md:right-0 md:mt-2 w-full md:w-96 h-full md:h-auto md:max-h-128 bg-[#0a0a0a] border-0 md:border border-gray-800 md:rounded-lg shadow-lg z-50 overflow-y-auto">
                     <div className="sticky top-0 bg-[#0a0a0a] border-b border-gray-800 p-4 flex items-center justify-between">
-                      <h3 className="font-medium">Notifications</h3>
-                      {unreadCount > 0 && (
+                      <h3 className="font-medium text-base md:text-lg">Notifications</h3>
+                      <div className="flex items-center gap-2">
+                        {unreadCount > 0 && (
+                          <button
+                            onClick={handleMarkAllRead}
+                            className="text-xs text-blue-400 hover:text-blue-300"
+                          >
+                            Mark all read
+                          </button>
+                        )}
                         <button
-                          onClick={handleMarkAllRead}
-                          className="text-xs text-blue-400 hover:text-blue-300"
+                          onClick={() => setShowNotifications(false)}
+                          className="md:hidden text-gray-400 hover:text-white p-1"
                         >
-                          Mark all read
+                          ✕
                         </button>
-                      )}
+                      </div>
                     </div>
                     
                     {notifications.length === 0 ? (
-                      <div className="p-8 text-center text-gray-500 text-sm">
+                      <div className="p-12 md:p-8 text-center text-gray-500 text-sm">
                         No notifications yet
                       </div>
                     ) : (
@@ -427,13 +435,18 @@ export default function DashboardPage() {
                         {notifications.map((notif) => (
                           <div
                             key={notif._id}
-                            className={`p-4 hover:bg-black transition-colors ${
+                            className={`p-4 md:p-4 hover:bg-black transition-colors ${
                               !notif.read ? 'bg-blue-500/5' : ''
                             }`}
                           >
-                            <p className="text-sm">{notif.message}</p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {new Date(notif.createdAt).toLocaleString()}
+                            <p className="text-sm md:text-sm leading-relaxed">{notif.message}</p>
+                            <p className="text-xs text-gray-500 mt-2">
+                              {new Date(notif.createdAt).toLocaleString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
                             </p>
                             
                             {/* Show Accept/Decline buttons for team invitations */}
@@ -441,13 +454,13 @@ export default function DashboardPage() {
                               <div className="flex gap-2 mt-3">
                                 <button
                                   onClick={() => handleInvitationResponse(notif.teamMemberId, 'accept')}
-                                  className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs py-2 px-3 rounded-md transition-colors"
+                                  className="flex-1 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-xs md:text-sm py-2.5 md:py-2 px-3 rounded-md transition-colors font-medium"
                                 >
                                   ✓ Accept
                                 </button>
                                 <button
                                   onClick={() => handleInvitationResponse(notif.teamMemberId, 'decline')}
-                                  className="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs py-2 px-3 rounded-md transition-colors"
+                                  className="flex-1 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-xs md:text-sm py-2.5 md:py-2 px-3 rounded-md transition-colors font-medium"
                                 >
                                   ✗ Decline
                                 </button>
@@ -866,8 +879,8 @@ function TeamModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#0a0a0a] border border-gray-800 rounded-lg w-full max-w-2xl p-4 md:p-6 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/70 flex items-end md:items-center justify-center z-50 p-0 md:p-4">
+      <div className="bg-[#0a0a0a] border-t md:border border-gray-800 rounded-t-2xl md:rounded-lg w-full max-w-2xl p-5 md:p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4 md:mb-6">
           <div>
             <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2">
@@ -882,7 +895,7 @@ function TeamModal({
             {members.length > 0 && (
               <button
                 onClick={handleCleanupDuplicates}
-                className="text-xs text-gray-400 hover:text-yellow-400 transition-colors px-2 py-1 border border-gray-700 rounded hover:border-yellow-500"
+                className="text-xs text-gray-400 hover:text-yellow-400 active:text-yellow-500 transition-colors px-2 py-1 border border-gray-700 rounded hover:border-yellow-500"
                 title="Remove duplicate friends"
               >
                 🧹 Cleanup
@@ -890,7 +903,7 @@ function TeamModal({
             )}
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-gray-400 hover:text-white active:text-gray-300 transition-colors text-2xl md:text-xl leading-none"
             >
               ✕
             </button>
@@ -922,7 +935,7 @@ function TeamModal({
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="flex-1 bg-[#0a0a0a] border border-gray-800 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+              className="flex-1 bg-[#0a0a0a] border border-gray-800 rounded-md px-3 py-2.5 md:py-2 text-white text-base md:text-sm focus:outline-none focus:border-blue-500"
             >
               <option value="friend">Friend</option>
               <option value="close friend">Close Friend</option>
@@ -931,7 +944,7 @@ function TeamModal({
             <button
               type="submit"
               disabled={isAdding}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+              className="px-4 py-3 md:py-2 bg-blue-600 text-white rounded-md text-base md:text-sm font-medium hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 transition-colors"
             >
               {isAdding ? 'Adding...' : 'Add Friend'}
             </button>
@@ -951,39 +964,39 @@ function TeamModal({
             members.map((member) => (
               <div
                 key={member._id}
-                className="flex items-center justify-between p-3 bg-black border border-gray-800 rounded-lg hover:border-gray-700 transition-colors"
+                className="flex items-center justify-between p-3 md:p-3 bg-black border border-gray-800 rounded-lg hover:border-gray-700 active:border-gray-600 transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-medium text-sm">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="w-10 h-10 md:w-10 md:h-10 shrink-0 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-medium text-sm">
                     {getInitials(member.name)}
                   </div>
-                  <div>
-                    <p className="text-sm font-medium">{member.name}</p>
-                    <p className="text-xs text-gray-400">{member.email}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <span className="px-2 py-0.5 text-xs rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                      {member.role}
-                    </span>
-                    {(member as any).status && (
-                      <span className={`px-2 py-0.5 text-xs rounded-full ${
-                        (member as any).status === 'accepted' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
-                        (member as any).status === 'declined' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
-                        'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
-                      }`}>
-                        {(member as any).status === 'accepted' ? '✓ Accepted' :
-                         (member as any).status === 'declined' ? '✗ Declined' :
-                         '⏳ Pending'}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm md:text-sm font-medium truncate">{member.name}</p>
+                    <p className="text-xs text-gray-400 truncate">{member.email}</p>
+                    <div className="flex gap-2 mt-1 flex-wrap">
+                      <span className="px-2 py-0.5 text-xs rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                        {member.role}
                       </span>
-                    )}
+                      {(member as any).status && (
+                        <span className={`px-2 py-0.5 text-xs rounded-full ${
+                          (member as any).status === 'accepted' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                          (member as any).status === 'declined' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                          'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+                        }`}>
+                          {(member as any).status === 'accepted' ? '✓ Accepted' :
+                           (member as any).status === 'declined' ? '✗ Declined' :
+                           '⏳ Pending'}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <button
                   onClick={() => handleRemoveMember(member._id)}
-                  className="p-2 hover:bg-gray-800 rounded text-gray-400 hover:text-red-400 transition-colors"
+                  className="p-2.5 md:p-2 hover:bg-gray-800 active:bg-gray-700 rounded text-gray-400 hover:text-red-400 transition-colors shrink-0 ml-2"
                   title="Remove friend"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                 </button>
@@ -1022,8 +1035,8 @@ function AIBreakdownModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#0a0a0a] border border-gray-800 rounded-lg w-full max-w-2xl p-4 md:p-6">
+    <div className="fixed inset-0 bg-black/70 flex items-end md:items-center justify-center z-50 p-0 md:p-4">
+      <div className="bg-[#0a0a0a] border-t md:border border-gray-800 rounded-t-2xl md:rounded-lg w-full max-w-2xl p-5 md:p-6 max-h-[90vh] md:max-h-[85vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2">
             <svg className="w-5 h-5 md:w-6 md:h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1033,7 +1046,7 @@ function AIBreakdownModal({
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-gray-400 hover:text-white active:text-gray-300 transition-colors text-2xl md:text-xl leading-none"
           >
             ✕
           </button>
@@ -1047,13 +1060,13 @@ function AIBreakdownModal({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Example: Plan a marketing campaign, prepare for an exam, organize a team event, build a new feature..."
-          className="w-full h-40 bg-black border border-gray-800 rounded-lg p-3 text-white resize-none focus:outline-none focus:border-purple-500 placeholder:text-gray-600"
+          className="w-full h-40 md:h-40 bg-black border border-gray-800 rounded-lg p-3 md:p-3 text-white resize-none focus:outline-none focus:border-purple-500 placeholder:text-gray-600 text-base"
         />
 
-        <div className="flex justify-end gap-2 mt-4">
+        <div className="flex flex-col-reverse md:flex-row justify-end gap-3 md:gap-2 mt-4">
           <button
             onClick={onClose}
-            className="px-4 py-2 border border-gray-800 rounded-lg hover:bg-[#1a1a1a] transition-colors"
+            className="px-4 py-3 md:py-2 border border-gray-800 rounded-lg hover:bg-[#1a1a1a] active:bg-gray-800 transition-colors font-medium md:hidden"
             disabled={isLoading}
           >
             Cancel
@@ -1061,7 +1074,7 @@ function AIBreakdownModal({
           <button
             onClick={handleSubmit}
             disabled={isLoading || !value.trim()}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+            className="px-4 py-3 md:py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 active:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors font-medium"
           >
             {isLoading ? (
               <>
@@ -1109,9 +1122,18 @@ function TaskModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#0a0a0a] border border-gray-800 rounded-lg max-w-md w-full p-4 md:p-6 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-lg md:text-xl font-semibold mb-4">{task ? 'Edit Task' : 'New Task'}</h2>
+    <div className="fixed inset-0 bg-black/70 flex items-end md:items-center justify-center z-50 p-0 md:p-4">
+      <div className="bg-[#0a0a0a] border-t md:border border-gray-800 rounded-t-2xl md:rounded-lg max-w-md w-full p-5 md:p-6 max-h-[90vh] md:max-h-[85vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-lg md:text-xl font-semibold">{task ? 'Edit Task' : 'New Task'}</h2>
+          <button
+            onClick={onClose}
+            type="button"
+            className="md:hidden text-gray-400 hover:text-white p-2 -mr-2"
+          >
+            ✕
+          </button>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Title</label>
@@ -1189,14 +1211,14 @@ function TaskModal({
           <div className="flex gap-3 pt-4">
             <button
               type="submit"
-              className="flex-1 bg-white text-black py-2 rounded-md font-medium hover:bg-gray-100 transition-colors"
+              className="flex-1 bg-white text-black py-3 md:py-2 rounded-md font-medium hover:bg-gray-100 active:bg-gray-200 transition-colors"
             >
               {task ? 'Update' : 'Create'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-gray-800 text-white py-2 rounded-md font-medium hover:bg-gray-700 transition-colors"
+              className="flex-1 bg-gray-800 text-white py-3 md:py-2 rounded-md font-medium hover:bg-gray-700 active:bg-gray-600 transition-colors md:hidden"
             >
               Cancel
             </button>
@@ -1312,7 +1334,7 @@ function TaskCard({
         <button
           onClick={isSelectionMode ? () => onSelect?.(task._id) : handleCircleClick}
           onContextMenu={handleRightClick}
-          className="cursor-pointer hover:scale-110 transition-transform shrink-0"
+          className="cursor-pointer hover:scale-110 active:scale-95 transition-transform shrink-0 p-1 -m-1"
           title={isSelectionMode ? 'Select task' : task.status === 'todo' ? 'Click to start' : task.status === 'inprogress' ? 'Click to complete' : 'Click to reset'}
         >
           {getStatusIcon()}
@@ -1366,22 +1388,22 @@ function TaskCard({
           {task.dueDate && (
             <span className="text-xs text-gray-500">{formatDate(task.dueDate)}</span>
           )}
-          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
             <button
               onClick={() => onEdit(task)}
-              className="p-1 hover:bg-gray-800 rounded text-gray-400 hover:text-white"
+              className="p-1.5 md:p-1 hover:bg-gray-800 active:bg-gray-700 rounded text-gray-400 hover:text-white"
               title="Edit"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
             </button>
             <button
               onClick={() => onDelete(task._id)}
-              className="p-1 hover:bg-gray-800 rounded text-gray-400 hover:text-red-400"
+              className="p-1.5 md:p-1 hover:bg-gray-800 active:bg-gray-700 rounded text-gray-400 hover:text-red-400"
               title="Delete"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </button>
