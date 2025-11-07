@@ -42,51 +42,63 @@ Example output format:
 
     const userPrompt = `User's Task: ${mainTask}`;
 
-    // Mock response for now - replace with actual AI API call
-    const mockSubTasks = await generateMockSubTasks(mainTask);
-
-    return NextResponse.json({ subTasks: mockSubTasks });
-
-    // Example implementation with OpenAI (uncomment and add your API key):
-    /*
-    const openaiApiKey = process.env.OPENAI_API_KEY;
-    if (!openaiApiKey) {
-      throw new Error('OPENAI_API_KEY not configured');
-    }
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${openaiApiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 500,
-      }),
-    });
+    // Google Gemini 2.0 Flash API integration
+    const geminiApiKey = process.env.GEMINI_API_KEY || 'AIzaSyBI0ENCW_T4wvM8CohPvOvt_dLAK5Jgz3E';
+    
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: systemPrompt },
+                { text: userPrompt }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 500,
+            topP: 0.95,
+          },
+        }),
+      }
+    );
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('Gemini API error:', errorText);
+      throw new Error(`Gemini API error: ${response.statusText}`);
     }
 
     const data = await response.json();
-    const aiResponse = data.choices[0].message.content;
+    const aiResponse = data.candidates[0].content.parts[0].text;
     
     // Parse the JSON array from AI response
-    const subTasks = JSON.parse(aiResponse);
+    let subTasks: string[];
+    try {
+      subTasks = JSON.parse(aiResponse.trim());
+    } catch (parseError) {
+      console.error('Failed to parse AI response:', aiResponse);
+      // Fallback: try to extract JSON array from response
+      const jsonMatch = aiResponse.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        subTasks = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error('Invalid AI response format');
+      }
+    }
     
-    if (!Array.isArray(subTasks)) {
+    if (!Array.isArray(subTasks) || subTasks.length === 0) {
       throw new Error('Invalid AI response format');
     }
 
     return NextResponse.json({ subTasks });
-    */
 
   } catch (error) {
     console.error('AI Breakdown error:', error);
