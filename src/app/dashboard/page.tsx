@@ -41,6 +41,7 @@ export default function DashboardPage() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
 
   useEffect(() => {
@@ -381,7 +382,7 @@ export default function DashboardPage() {
             {/* Back to Welcome Button */}
             <button
               onClick={() => router.push('/welcome')}
-              className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors group"
+              className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors group cursor-pointer"
               title="Back to Welcome"
             >
               <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -398,7 +399,7 @@ export default function DashboardPage() {
             <div className="relative">
               <button 
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative flex items-center gap-2 bg-gray-800 text-white p-2 rounded-md hover:bg-gray-700 transition-colors"
+                className="relative flex items-center gap-2 bg-gray-800 text-white p-2 rounded-md hover:bg-gray-700 transition-colors cursor-pointer"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -414,74 +415,76 @@ export default function DashboardPage() {
               {showNotifications && (
                 <>
                   <div 
-                    className="fixed inset-0 z-40 bg-black/50 md:bg-transparent" 
+                    className="fixed inset-0 z-40" 
                     onClick={() => setShowNotifications(false)}
                   />
-                  <div className="fixed md:absolute top-0 md:top-auto right-0 md:right-0 md:mt-2 w-full md:w-96 h-full md:h-auto md:max-h-128 bg-[#0a0a0a] border-0 md:border border-gray-800 md:rounded-lg shadow-lg z-50 overflow-y-auto">
-                    <div className="sticky top-0 bg-[#0a0a0a] border-b border-gray-800 p-4 flex items-center justify-between">
-                      <h3 className="font-medium text-base md:text-lg">Notifications</h3>
+                  <div className="fixed top-16 right-2 md:absolute md:top-auto md:right-0 md:mt-2 w-[calc(100%-1rem)] max-w-sm md:w-96 max-h-[80vh] md:max-h-128 bg-[#0a0a0a] border border-gray-800 rounded-lg shadow-lg z-50 overflow-hidden flex flex-col">
+                    <div className="bg-[#0a0a0a] border-b border-gray-800 p-4 flex items-center justify-between shrink-0">
+                      <h3 className="font-medium text-base">Notifications</h3>
                       <div className="flex items-center gap-2">
                         {unreadCount > 0 && (
                           <button
                             onClick={handleMarkAllRead}
-                            className="text-xs text-blue-400 hover:text-blue-300"
+                            className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer"
                           >
                             Mark all read
                           </button>
                         )}
                         <button
                           onClick={() => setShowNotifications(false)}
-                          className="md:hidden text-gray-400 hover:text-white p-1"
+                          className="text-gray-400 hover:text-white p-1 cursor-pointer"
                         >
                           ✕
                         </button>
                       </div>
                     </div>
                     
-                    {notifications.length === 0 ? (
-                      <div className="p-12 md:p-8 text-center text-gray-500 text-sm">
-                        No notifications yet
-                      </div>
-                    ) : (
-                      <div className="divide-y divide-gray-800">
-                        {notifications.map((notif) => (
-                          <div
-                            key={notif._id}
-                            className={`p-4 md:p-4 hover:bg-black transition-colors ${
-                              !notif.read ? 'bg-blue-500/5' : ''
-                            }`}
-                          >
-                            <p className="text-sm md:text-sm leading-relaxed">{notif.message}</p>
-                            <p className="text-xs text-gray-500 mt-2">
-                              {new Date(notif.createdAt).toLocaleString('en-US', {
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </p>
-                            
-                            {/* Show Accept/Decline buttons for team invitations */}
-                            {notif.type === 'team_invitation' && notif.actionRequired && (
-                              <div className="flex gap-2 mt-3">
-                                <button
-                                  onClick={() => handleInvitationResponse(notif.teamMemberId, 'accept')}
-                                  className="flex-1 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-xs md:text-sm py-2.5 md:py-2 px-3 rounded-md transition-colors font-medium"
-                                >
-                                  ✓ Accept
-                                </button>
-                                <button
-                                  onClick={() => handleInvitationResponse(notif.teamMemberId, 'decline')}
-                                  className="flex-1 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-xs md:text-sm py-2.5 md:py-2 px-3 rounded-md transition-colors font-medium"
-                                >
-                                  ✗ Decline
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    <div className="overflow-y-auto flex-1">
+                      {notifications.length === 0 ? (
+                        <div className="p-8 text-center text-gray-500 text-sm">
+                          No notifications yet
+                        </div>
+                      ) : (
+                        <div className="divide-y divide-gray-800">
+                          {notifications.map((notif) => (
+                            <div
+                              key={notif._id}
+                              className={`p-4 hover:bg-black transition-colors ${
+                                !notif.read ? 'bg-blue-500/5' : ''
+                              }`}
+                            >
+                              <p className="text-sm leading-relaxed">{notif.message}</p>
+                              <p className="text-xs text-gray-500 mt-2">
+                                {new Date(notif.createdAt).toLocaleString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit'
+                                })}
+                              </p>
+                              
+                              {/* Show Accept/Decline buttons for team invitations */}
+                              {notif.type === 'team_invitation' && notif.actionRequired && (
+                                <div className="flex gap-2 mt-3">
+                                  <button
+                                    onClick={() => handleInvitationResponse(notif.teamMemberId, 'accept')}
+                                    className="flex-1 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-xs py-2 px-3 rounded-md transition-colors font-medium cursor-pointer"
+                                  >
+                                    ✓ Accept
+                                  </button>
+                                  <button
+                                    onClick={() => handleInvitationResponse(notif.teamMemberId, 'decline')}
+                                    className="flex-1 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-xs py-2 px-3 rounded-md transition-colors font-medium cursor-pointer"
+                                  >
+                                    ✗ Decline
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </>
               )}
@@ -489,7 +492,7 @@ export default function DashboardPage() {
 
             <button 
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-1 md:gap-2 bg-white text-black px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium hover:bg-gray-100 transition-colors whitespace-nowrap"
+              className="flex items-center gap-1 md:gap-2 bg-gray-200 text-black px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium hover:bg-gray-300 transition-colors whitespace-nowrap cursor-pointer"
             >
               <span>+</span>
               <span className="hidden sm:inline">New Task</span>
@@ -497,7 +500,7 @@ export default function DashboardPage() {
             </button>
             <button 
               onClick={() => setShowAIBreakdown(true)}
-              className="flex items-center gap-1 md:gap-2 bg-purple-600 text-white px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium hover:bg-purple-700 transition-colors whitespace-nowrap"
+              className="flex items-center gap-1 md:gap-2 bg-gray-700 text-white px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium hover:bg-gray-600 transition-colors whitespace-nowrap cursor-pointer"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -507,7 +510,7 @@ export default function DashboardPage() {
             </button>
             <button 
               onClick={() => setShowTeamModal(true)}
-              className="flex items-center gap-1 md:gap-2 bg-blue-600 text-white px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium hover:bg-blue-700 transition-colors whitespace-nowrap"
+              className="flex items-center gap-1 md:gap-2 bg-gray-600 text-white px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium hover:bg-gray-500 transition-colors whitespace-nowrap cursor-pointer"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -518,26 +521,48 @@ export default function DashboardPage() {
             
             {/* User Info */}
             {currentUser && (
-              <div className="hidden lg:flex items-center gap-2 px-3 py-2 bg-gray-900 border border-gray-800 rounded-md">
-                <div className="w-8 h-8 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-medium">
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserDropdown(!showUserDropdown)}
+                  className="flex items-center justify-center w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-500 text-white text-sm font-medium hover:opacity-90 transition-opacity cursor-pointer"
+                >
                   {currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-medium text-white">{currentUser.name}</span>
-                  <span className="text-xs text-gray-400">{currentUser.email}</span>
-                </div>
+                </button>
+
+                {/* User Dropdown */}
+                {showUserDropdown && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={() => setShowUserDropdown(false)}
+                    />
+                    <div className="absolute right-0 mt-2 w-64 bg-[#0a0a0a] border border-gray-800 rounded-lg shadow-lg z-50 p-4">
+                      <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-800">
+                        <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-base font-medium">
+                          {currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                        </div>
+                        <div className="flex flex-col flex-1 min-w-0">
+                          <span className="text-sm font-medium text-white truncate">{currentUser.name}</span>
+                          <span className="text-xs text-gray-400 truncate">{currentUser.email}</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setShowUserDropdown(false);
+                          handleLogout();
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-gray-800 rounded-md transition-colors cursor-pointer"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Logout
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             )}
-            
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-1 md:gap-2 bg-gray-800 text-white px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium hover:bg-gray-700 transition-colors whitespace-nowrap"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-              <span className="hidden sm:inline">Logout</span>
-            </button>
           </div>
         </div>
       </header>
@@ -633,7 +658,7 @@ export default function DashboardPage() {
             <button
               key={key}
               onClick={() => setActiveTab(key)}
-              className={`px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap ${
+              className={`px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === key
                   ? 'bg-[#1a1a1a] text-white'
                   : 'text-gray-400 hover:text-white hover:bg-[#111]'
@@ -730,7 +755,7 @@ export default function DashboardPage() {
           </div>
           <button
             onClick={handleCancelSelection}
-            className="bg-gray-700 hover:bg-gray-600 text-white p-2 md:p-3 rounded-full shadow-lg transition-colors"
+            className="bg-gray-700 hover:bg-gray-600 text-white p-2 md:p-3 rounded-full shadow-lg transition-colors cursor-pointer"
             title="Cancel selection"
           >
             <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -739,7 +764,7 @@ export default function DashboardPage() {
           </button>
           <button
             onClick={handleBulkDelete}
-            className="bg-red-600 hover:bg-red-700 text-white p-2 md:p-3 rounded-full shadow-lg transition-colors"
+            className="bg-red-600 hover:bg-red-700 text-white p-2 md:p-3 rounded-full shadow-lg transition-colors cursor-pointer"
             title="Delete selected tasks"
           >
             <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -907,7 +932,7 @@ function TeamModal({
             {members.length > 0 && (
               <button
                 onClick={handleCleanupDuplicates}
-                className="text-xs text-gray-400 hover:text-yellow-400 active:text-yellow-500 transition-colors px-2 py-1 border border-gray-700 rounded hover:border-yellow-500"
+                className="text-xs text-gray-400 hover:text-yellow-400 active:text-yellow-500 transition-colors px-2 py-1 border border-gray-700 rounded hover:border-yellow-500 cursor-pointer"
                 title="Remove duplicate friends"
               >
                 🧹 Cleanup
@@ -915,7 +940,7 @@ function TeamModal({
             )}
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-white active:text-gray-300 transition-colors text-2xl md:text-xl leading-none"
+              className="text-gray-400 hover:text-white active:text-gray-300 transition-colors text-2xl md:text-xl leading-none cursor-pointer"
             >
               ✕
             </button>
@@ -956,7 +981,7 @@ function TeamModal({
             <button
               type="submit"
               disabled={isAdding}
-              className="px-4 py-3 md:py-2 bg-blue-600 text-white rounded-md text-base md:text-sm font-medium hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 transition-colors"
+              className="px-4 py-3 md:py-2 bg-gray-200 text-black rounded-md text-base md:text-sm font-medium hover:bg-gray-300 active:bg-gray-400 disabled:opacity-50 transition-colors cursor-pointer"
             >
               {isAdding ? 'Adding...' : 'Add Friend'}
             </button>
@@ -1005,7 +1030,7 @@ function TeamModal({
                 </div>
                 <button
                   onClick={() => handleRemoveMember(member._id)}
-                  className="p-2.5 md:p-2 hover:bg-gray-800 active:bg-gray-700 rounded text-gray-400 hover:text-red-400 transition-colors shrink-0 ml-2"
+                  className="p-2.5 md:p-2 hover:bg-gray-800 active:bg-gray-700 rounded text-gray-400 hover:text-red-400 transition-colors shrink-0 ml-2 cursor-pointer"
                   title="Remove friend"
                 >
                   <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1058,7 +1083,7 @@ function AIBreakdownModal({
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white active:text-gray-300 transition-colors text-2xl md:text-xl leading-none"
+            className="text-gray-400 hover:text-white active:text-gray-300 transition-colors text-2xl md:text-xl leading-none cursor-pointer"
           >
             ✕
           </button>
@@ -1078,7 +1103,7 @@ function AIBreakdownModal({
         <div className="flex flex-col-reverse md:flex-row justify-end gap-3 md:gap-2 mt-4">
           <button
             onClick={onClose}
-            className="px-4 py-3 md:py-2 border border-gray-800 rounded-lg hover:bg-[#1a1a1a] active:bg-gray-800 transition-colors font-medium md:hidden"
+            className="px-4 py-3 md:py-2 border border-gray-800 rounded-lg hover:bg-[#1a1a1a] active:bg-gray-800 transition-colors font-medium md:hidden cursor-pointer"
             disabled={isLoading}
           >
             Cancel
@@ -1086,7 +1111,7 @@ function AIBreakdownModal({
           <button
             onClick={handleSubmit}
             disabled={isLoading || !value.trim()}
-            className="px-4 py-3 md:py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 active:bg-purple-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors font-medium"
+            className="px-4 py-3 md:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 active:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors font-medium cursor-pointer"
           >
             {isLoading ? (
               <>
@@ -1141,7 +1166,7 @@ function TaskModal({
           <button
             onClick={onClose}
             type="button"
-            className="md:hidden text-gray-400 hover:text-white p-2 -mr-2"
+            className="text-gray-400 hover:text-white p-2 -mr-2 cursor-pointer"
           >
             ✕
           </button>
@@ -1223,14 +1248,14 @@ function TaskModal({
           <div className="flex gap-3 pt-4">
             <button
               type="submit"
-              className="flex-1 bg-white text-black py-3 md:py-2 rounded-md font-medium hover:bg-gray-100 active:bg-gray-200 transition-colors"
+              className="flex-1 bg-white text-black py-3 md:py-2 rounded-md font-medium hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer"
             >
               {task ? 'Update' : 'Create'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-gray-800 text-white py-3 md:py-2 rounded-md font-medium hover:bg-gray-700 active:bg-gray-600 transition-colors md:hidden"
+              className="flex-1 bg-gray-800 text-white py-3 md:py-2 rounded-md font-medium hover:bg-gray-700 active:bg-gray-600 transition-colors md:hidden cursor-pointer"
             >
               Cancel
             </button>
@@ -1327,7 +1352,7 @@ function TaskCard({
         {(isSelectionMode || isSelected) && onSelect && (
           <button
             onClick={() => onSelect(task._id)}
-            className="shrink-0 mt-0.5"
+            className="shrink-0 mt-0.5 cursor-pointer"
           >
             <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
               isSelected 
@@ -1374,7 +1399,7 @@ function TaskCard({
                 onDelete(task._id);
                 setShowMenu(false);
               }}
-              className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2"
+              className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2 cursor-pointer"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -1403,7 +1428,7 @@ function TaskCard({
           <div className="flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
             <button
               onClick={() => onEdit(task)}
-              className="p-1.5 md:p-1 hover:bg-gray-800 active:bg-gray-700 rounded text-gray-400 hover:text-white"
+              className="p-1.5 md:p-1 hover:bg-gray-800 active:bg-gray-700 rounded text-gray-400 hover:text-white cursor-pointer"
               title="Edit"
             >
               <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1412,7 +1437,7 @@ function TaskCard({
             </button>
             <button
               onClick={() => onDelete(task._id)}
-              className="p-1.5 md:p-1 hover:bg-gray-800 active:bg-gray-700 rounded text-gray-400 hover:text-red-400"
+              className="p-1.5 md:p-1 hover:bg-gray-800 active:bg-gray-700 rounded text-gray-400 hover:text-red-400 cursor-pointer"
               title="Delete"
             >
               <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

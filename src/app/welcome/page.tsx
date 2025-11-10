@@ -112,13 +112,13 @@ export default function WelcomePage() {
               <>
                 <button
                   onClick={handleGoToDashboard}
-                  className="px-4 py-2 text-gray-300 hover:text-white text-sm font-medium transition-colors"
+                  className="px-4 py-2 text-gray-300 hover:text-white text-sm font-medium transition-colors cursor-pointer"
                 >
                   Dashboard
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 text-gray-300 hover:text-white text-sm font-medium transition-colors"
+                  className="px-4 py-2 text-gray-300 hover:text-white text-sm font-medium transition-colors cursor-pointer"
                 >
                   Logout
                 </button>
@@ -127,13 +127,13 @@ export default function WelcomePage() {
               <>
                 <button
                   onClick={handleLogin}
-                  className="px-4 py-2 text-gray-300 hover:text-white text-sm font-medium transition-colors"
+                  className="px-4 py-2 text-gray-300 hover:text-white text-sm font-medium transition-colors cursor-pointer"
                 >
                   Login
                 </button>
                 <button
                   onClick={handleSignup}
-                  className="px-4 py-2 bg-white text-black rounded-md text-sm font-medium hover:bg-gray-100 transition-colors"
+                  className="px-4 py-2 bg-white text-black rounded-md text-sm font-medium hover:bg-gray-100 transition-colors cursor-pointer"
                 >
                   Sign Up
                 </button>
@@ -169,7 +169,7 @@ export default function WelcomePage() {
               <>
                 <button
                   onClick={handleGoToDashboard}
-                  className="px-6 py-3 bg-white text-black rounded-md font-medium hover:bg-gray-100 transition-colors flex items-center gap-2"
+                  className="px-6 py-3 bg-white text-black rounded-md font-medium hover:bg-gray-100 transition-colors flex items-center gap-2 cursor-pointer"
                 >
                   Open Dashboard
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,7 +178,7 @@ export default function WelcomePage() {
                 </button>
                 <button
                   onClick={handleViewCompleted}
-                  className="px-6 py-3 bg-transparent text-white rounded-md font-medium border border-gray-700 hover:border-gray-600 transition-colors flex items-center gap-2"
+                  className="px-6 py-3 bg-transparent text-white rounded-md font-medium border border-gray-700 hover:border-gray-600 transition-colors flex items-center gap-2 cursor-pointer"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -190,13 +190,13 @@ export default function WelcomePage() {
               <>
                 <button
                   onClick={handleLogin}
-                  className="px-6 py-3 bg-white text-black rounded-md font-medium hover:bg-gray-100 transition-colors"
+                  className="px-6 py-3 bg-white text-black rounded-md font-medium hover:bg-gray-100 transition-colors cursor-pointer"
                 >
                   Get Started
                 </button>
                 <button
                   onClick={handleSignup}
-                  className="px-6 py-3 bg-transparent text-white rounded-md font-medium border border-gray-700 hover:border-gray-600 transition-colors"
+                  className="px-6 py-3 bg-transparent text-white rounded-md font-medium border border-gray-700 hover:border-gray-600 transition-colors cursor-pointer"
                 >
                   Sign Up
                 </button>
@@ -204,35 +204,6 @@ export default function WelcomePage() {
             )}
           </div>
         </div>
-
-        {/* Stats Cards */}
-        {user && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-            <div className="bg-[#0a0a0a] border border-gray-800 rounded-lg p-6">
-              <div className="text-3xl font-bold mb-1">{stats.totalTasks}</div>
-              <div className="text-gray-400 text-sm mb-2">Total Tasks</div>
-              <div className="text-green-500 text-xs">+{stats.tasksThisWeek} this week</div>
-            </div>
-
-            <div className="bg-[#0a0a0a] border border-gray-800 rounded-lg p-6">
-              <div className="text-3xl font-bold mb-1">{stats.inProgress}</div>
-              <div className="text-gray-400 text-sm mb-2">In Progress</div>
-              <div className="text-blue-500 text-xs">Active now</div>
-            </div>
-
-            <div className="bg-[#0a0a0a] border border-gray-800 rounded-lg p-6">
-              <div className="text-3xl font-bold mb-1">{stats.completed}</div>
-              <div className="text-gray-400 text-sm mb-2">Completed</div>
-              <div className="text-gray-500 text-xs">{stats.completionRate}% rate</div>
-            </div>
-
-            <div className="bg-[#0a0a0a] border border-gray-800 rounded-lg p-6">
-              <div className="text-3xl font-bold mb-1">{stats.teamMembers}</div>
-              <div className="text-gray-400 text-sm mb-2">Team Members</div>
-              <div className="text-purple-500 text-xs">Active</div>
-            </div>
-          </div>
-        )}
 
         {/* Features Section */}
         <div className="mb-12">
@@ -317,7 +288,7 @@ export default function WelcomePage() {
             </p>
             <button
               onClick={handleGoToDashboard}
-              className="px-8 py-4 bg-white text-black rounded-lg font-medium hover:bg-gray-100 transition-colors inline-flex items-center gap-2 text-lg"
+              className="px-8 py-4 bg-white text-black rounded-lg font-medium hover:bg-gray-100 transition-colors inline-flex items-center gap-2 text-lg cursor-pointer"
             >
               Launch Dashboard
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
