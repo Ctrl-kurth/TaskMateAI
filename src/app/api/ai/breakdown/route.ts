@@ -73,6 +73,18 @@ Example output format:
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Gemini API error:', errorText);
+      
+      // If quota exceeded (429), use mock fallback
+      if (response.status === 429) {
+        console.log('Gemini API quota exceeded, using fallback mock implementation');
+        const subTasks = await generateMockSubTasks(mainTask);
+        return NextResponse.json({ 
+          subTasks,
+          usingFallback: true,
+          message: 'Using fallback due to API quota limit. Please try again in a few minutes for AI-powered results.'
+        });
+      }
+      
       throw new Error(`Gemini API error: ${response.statusText}`);
     }
 
@@ -102,6 +114,22 @@ Example output format:
 
   } catch (error) {
     console.error('AI Breakdown error:', error);
+    
+    // Fallback to mock implementation on any error
+    try {
+      const { mainTask } = await req.json();
+      if (mainTask) {
+        const subTasks = await generateMockSubTasks(mainTask);
+        return NextResponse.json({ 
+          subTasks,
+          usingFallback: true,
+          message: 'Using fallback implementation. AI service temporarily unavailable.'
+        });
+      }
+    } catch (fallbackError) {
+      // If fallback also fails, return error
+    }
+    
     return NextResponse.json(
       { error: 'Failed to generate task breakdown' },
       { status: 500 }

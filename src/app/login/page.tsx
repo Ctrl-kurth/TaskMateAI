@@ -27,7 +27,7 @@ function LoginForm() {
       if (response.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        router.push('/dashboard');
+        router.push('/welcome');
       } else {
         setError(data.error || 'Google login failed');
       }
@@ -67,7 +67,7 @@ function LoginForm() {
       if (response.ok) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        router.push('/dashboard');
+        router.push('/welcome');
       } else {
         setError(data.error || 'Login failed');
       }
