@@ -145,7 +145,7 @@ export default function RegisterPage() {
               size="large"
               text="signup_with"
               shape="rectangular"
-              width="100%"
+              width={384}
             />
           </div>
 
