@@ -143,9 +143,9 @@ export default function RegisterPage() {
               onError={handleGoogleError}
               theme="filled_black"
               size="large"
-              text="signup_with"
+              text="continue_with"
               shape="rectangular"
-              width="100%"
+              width="384"
             />
           </div>
 

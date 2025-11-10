@@ -140,7 +140,7 @@ function LoginForm() {
               size="large"
               text="continue_with"
               shape="rectangular"
-              width="100%"
+              width="384"
               auto_select={true}
             />
           </div>
