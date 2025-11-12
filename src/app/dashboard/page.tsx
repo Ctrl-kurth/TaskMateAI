@@ -524,7 +524,7 @@ export default function DashboardPage() {
               <div className="relative">
                 <button
                   onClick={() => setShowUserDropdown(!showUserDropdown)}
-                  className="flex items-center justify-center w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-500 text-white text-sm font-medium hover:opacity-90 transition-opacity cursor-pointer"
+                  className="flex items-center justify-center w-10 h-10 rounded-full bg-white text-black text-sm font-medium hover:opacity-90 transition-opacity cursor-pointer"
                 >
                   {currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                 </button>
@@ -538,7 +538,7 @@ export default function DashboardPage() {
                     />
                     <div className="absolute right-0 mt-2 w-64 bg-[#0a0a0a] border border-gray-800 rounded-lg shadow-lg z-50 p-4">
                       <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-800">
-                        <div className="w-12 h-12 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-base font-medium">
+                        <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-black text-base font-medium">
                           {currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                         </div>
                         <div className="flex flex-col flex-1 min-w-0">
@@ -1004,7 +1004,7 @@ function TeamModal({
                 className="flex items-center justify-between p-3 md:p-3 bg-black border border-gray-800 rounded-lg hover:border-gray-700 active:border-gray-600 transition-colors"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-10 h-10 md:w-10 md:h-10 shrink-0 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-medium text-sm">
+                  <div className="w-10 h-10 md:w-10 md:h-10 shrink-0 rounded-full bg-white flex items-center justify-center text-black font-medium text-sm">
                     {getInitials(member.name)}
                   </div>
                   <div className="flex-1 min-w-0">
