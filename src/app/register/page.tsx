@@ -142,16 +142,16 @@ export default function RegisterPage() {
               onSuccess={handleGoogleSuccess}
               onError={handleGoogleError}
               theme="filled_black"
-              size="large"
+              size="medium"
               text="continue_with"
               shape="rectangular"
-              width="384"
+              width="320"
             />
           </div>
 
           <p className="text-center text-sm text-gray-400 mt-4">
             Already have an account?{' '}
-            <a href="/login" className="text-white hover:underline">
+            <a href="/login" className="text-white hover:underline cursor-pointer">
               Sign in
             </a>
           </p>
