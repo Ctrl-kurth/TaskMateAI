@@ -1,5 +1,186 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Gemini models to try in order (from best to fallback)
+const GEMINI_MODELS = [
+  'gemini-2.5-flash',           // Latest stable (June 2025) - Fast and versatile
+  'gemini-2.5-pro',              // Latest stable Pro - Most capable
+  'gemini-2.0-flash',            // Stable 2.0 Flash
+  'gemini-flash-latest',         // Always points to latest Flash
+  'gemini-pro-latest',           // Always points to latest Pro
+];
+
+// Try each model until one works
+async function tryGeminiModels(systemPrompt: string, userPrompt: string, geminiApiKey: string) {
+  const errors: { model: string; error: string }[] = [];
+  
+  for (const model of GEMINI_MODELS) {
+    try {
+      console.log(`Trying Gemini model: ${model}`);
+      
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  { text: systemPrompt },
+                  { text: userPrompt }
+                ]
+              }
+            ],
+            generationConfig: {
+              temperature: 0.8,
+              maxOutputTokens: 2000,  // Increased to allow complete responses
+              topP: 0.95,
+              topK: 40,
+            },
+            safetySettings: [
+              {
+                category: "HARM_CATEGORY_HARASSMENT",
+                threshold: "BLOCK_NONE"
+              },
+              {
+                category: "HARM_CATEGORY_HATE_SPEECH",
+                threshold: "BLOCK_NONE"
+              },
+              {
+                category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                threshold: "BLOCK_NONE"
+              },
+              {
+                category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                threshold: "BLOCK_NONE"
+              }
+            ]
+          }),
+        }
+      );
+
+      // If quota exceeded (429), try next model
+      if (response.status === 429) {
+        const errorText = await response.text();
+        console.log(`${model} quota exceeded, trying next model...`);
+        errors.push({ model, error: 'Quota exceeded' });
+        continue;
+      }
+
+      // If other error, log and try next
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`${model} error:`, errorText);
+        errors.push({ model, error: response.statusText });
+        continue;
+      }
+
+      // Success! Return the response data
+      const data = await response.json();
+      console.log(`✅ Successfully used model: ${model}`);
+      return { success: true, data, model };
+      
+    } catch (error) {
+      console.error(`Error with ${model}:`, error);
+      errors.push({ 
+        model, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+      continue;
+    }
+  }
+  
+  // All models failed
+  return { 
+    success: false, 
+    errors,
+    message: 'All Gemini models are currently rate-limited or unavailable' 
+  };
+}
+
+// Intelligent fallback breakdown generator
+function generateBasicBreakdown(mainTask: string): string[] {
+  const taskLower = mainTask.toLowerCase();
+  
+  // Extract key action words to understand task nature
+  const isStudy = /study|exam|learn|review|course|homework|assignment|test|quiz/i.test(mainTask);
+  const isDev = /build|develop|code|program|implement|create|design|app|website|software|api/i.test(mainTask);
+  const isWriting = /write|blog|article|content|essay|paper|report|document/i.test(mainTask);
+  const isResearch = /research|analyze|investigate|explore|study|survey/i.test(mainTask);
+  const isOrganize = /organize|plan|clean|arrange|sort|manage/i.test(mainTask);
+  
+  // Return domain-appropriate generic steps
+  if (isStudy) {
+    return [
+      "Identify key topics and learning objectives",
+      "Gather study materials and resources",
+      "Create organized notes and summaries",
+      "Practice with examples and exercises",
+      "Review and test your understanding",
+      "Focus on weak areas and reinforce learning"
+    ];
+  }
+  
+  if (isDev) {
+    return [
+      "Define requirements and scope",
+      "Research existing solutions and best practices",
+      "Design architecture and plan implementation",
+      "Set up development environment",
+      "Implement core functionality step by step",
+      "Test thoroughly and fix bugs",
+      "Optimize and finalize"
+    ];
+  }
+  
+  if (isWriting) {
+    return [
+      "Research topic and gather information",
+      "Create outline and structure",
+      "Write first draft without editing",
+      "Review and revise content",
+      "Edit for clarity and grammar",
+      "Finalize and format properly"
+    ];
+  }
+  
+  if (isResearch) {
+    return [
+      "Define research question or objective",
+      "Identify reliable sources and references",
+      "Collect and organize information",
+      "Analyze findings and identify patterns",
+      "Synthesize conclusions",
+      "Document results and insights"
+    ];
+  }
+  
+  if (isOrganize) {
+    return [
+      "Assess current state and identify goals",
+      "Create action plan with priorities",
+      "Gather necessary tools and resources",
+      "Execute tasks systematically",
+      "Review progress and adjust approach",
+      "Verify completion and maintain results"
+    ];
+  }
+  
+  // Generic intelligent breakdown for any task
+  return [
+    "Clarify objectives and success criteria",
+    "Break down into smaller components",
+    "Research and gather necessary information",
+    "Create detailed action plan",
+    "Execute plan step by step",
+    "Monitor progress and adjust as needed",
+    "Complete and verify all requirements",
+    "Review results and document learnings"
+  ];
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { mainTask } = await req.json();
@@ -17,246 +198,194 @@ export async function POST(req: NextRequest) {
     // 2. Anthropic Claude API: https://docs.anthropic.com/claude/reference/
     // 3. Your custom AI endpoint
     
-    const systemPrompt = `You are an expert task decomposition assistant. Your goal is to help a user break down a large, complex task into a logical, sequential list of smaller, actionable sub-tasks.
+    const systemPrompt = `You are an expert task decomposition AI assistant specializing in breaking down complex tasks into actionable steps. Your role is to analyze any task and create a comprehensive, intelligent breakdown.
 
-Your Instructions:
+CRITICAL: You MUST generate steps that are SPECIFICALLY tailored to the exact task provided. Do NOT use generic templates or placeholder steps.
 
-1. Analyze Domain: First, silently analyze the task to determine its domain. Is this related to:
-   * Software Development?
-   * Academics / Studying?
-   * Content Creation / Marketing?
-   * Household Chores?
-   * Personal Finance?
-   * Another domain?
+ANALYSIS FRAMEWORK:
+1. Deeply understand the SPECIFIC task, its unique requirements, and domain
+2. Consider the actual materials, tools, skills, or knowledge needed for THIS EXACT task
+3. Think about the logical sequence of actions for THIS SPECIFIC task
+4. Include domain-specific terminology and details
+5. Adapt the number of sub-tasks based on actual complexity (4-10 tasks)
 
-2. Generate Sub-Tasks: Based on the specific domain you identified, generate a list of 3-8 concrete, actionable sub-tasks.
-   * The tasks must be in a logical, sequential order.
-   * Each sub-task must start with an action verb (e.g., "Review," "Implement," "Write," "Clean," "Define," "Practice").
+BREAKDOWN PRINCIPLES:
+- Make each sub-task HIGHLY SPECIFIC to the exact task (e.g., for "cook caldereta": "Purchase beef, potatoes, carrots, bell peppers and tomato sauce" NOT "Gather necessary tools")
+- Start each sub-task with a strong action verb relevant to the domain
+- Include specific details, quantities, names, or technical terms when relevant
+- Ensure logical progression for THIS PARTICULAR task
+- Think like an expert in the task's domain
 
-3. Format Output: You MUST return the response as a single, valid JSON array of strings.
-   * DO NOT include any pre-amble, explanation, conversational text, or markdown formatting.
-   * Your entire response must be only the JSON array.
+EXAMPLES OF GOOD VS BAD:
+❌ BAD (Generic): "Gather necessary materials", "Create action plan", "Execute tasks"
+✅ GOOD (Specific): "Download VS Code and Node.js 18+", "Install React dependencies with npm", "Create components folder structure"
 
-Example output format:
-["Review course syllabus and exam topics", "Create summary notes for each chapter", "Practice 10 problems from each section", "Review previous exam papers", "Test yourself with mock exam", "Identify weak areas and review again"]`;
+OUTPUT FORMAT:
+Return ONLY a valid JSON array of strings. No explanations, no markdown, no additional text.
+Each string should be 5-20 words, SPECIFIC and actionable for the EXACT task.
 
-    const userPrompt = `User's Task: ${mainTask}`;
+Now analyze the following task and create an intelligent, highly specific, context-aware breakdown:`;
 
-    // Google Gemini 2.0 Flash API integration
-    const geminiApiKey = process.env.GEMINI_API_KEY || 'AIzaSyBI0ENCW_T4wvM8CohPvOvt_dLAK5Jgz3E';
+    const userPrompt = `Task to break down: "${mainTask}"
+
+Analyze this SPECIFIC task in detail. What EXACTLY needs to be done? What are the SPECIFIC steps, materials, tools, or actions needed for THIS PARTICULAR task (not generic steps)?
+
+Generate a highly specific, actionable breakdown with concrete details relevant to "${mainTask}".`;
+
+    // Google Gemini API integration with model fallback
+    const geminiApiKey = process.env.GEMINI_API_KEY;
     
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${geminiApiKey}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: systemPrompt },
-                { text: userPrompt }
-              ]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 500,
-            topP: 0.95,
-          },
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Gemini API error:', errorText);
-      
-      // If quota exceeded (429), use mock fallback
-      if (response.status === 429) {
-        console.log('Gemini API quota exceeded, using fallback mock implementation');
-        const subTasks = await generateMockSubTasks(mainTask);
-        return NextResponse.json({ 
-          subTasks,
-          usingFallback: true,
-          message: 'Using fallback due to API quota limit. Please try again in a few minutes for AI-powered results.'
-        });
-      }
-      
-      throw new Error(`Gemini API error: ${response.statusText}`);
+    if (!geminiApiKey) {
+      console.log('No Gemini API key found, using fallback breakdown');
+      return NextResponse.json({
+        error: 'NO_API_KEY',
+        message: 'Gemini API key not configured. Using intelligent fallback.',
+        subTasks: generateBasicBreakdown(mainTask),
+        usingFallback: true
+      }, { status: 200 });
     }
-
-    const data = await response.json();
-    const aiResponse = data.candidates[0].content.parts[0].text;
     
-    // Parse the JSON array from AI response
+    // Try multiple Gemini models
+    const result = await tryGeminiModels(systemPrompt, userPrompt, geminiApiKey);
+    
+    if (!result.success) {
+      console.log('All Gemini models failed, using fallback breakdown');
+      return NextResponse.json({
+        error: 'AI_MODELS_UNAVAILABLE',
+        message: 'All AI models are currently rate-limited. Using intelligent fallback.',
+        subTasks: generateBasicBreakdown(mainTask),
+        usingFallback: true,
+        attemptedModels: result.errors?.map(e => e.model)
+      }, { status: 200 });
+    }
+    
+    const { data, model } = result;
+    
+    // Check if response was blocked or empty
+    if (!data.candidates || data.candidates.length === 0) {
+      console.error('Gemini API returned no candidates:', data);
+      throw new Error('AI response was blocked or empty');
+    }
+    
+    const candidate = data.candidates[0];
+    
+    // Check for content filtering
+    if (candidate.finishReason === 'SAFETY' || !candidate.content) {
+      console.error('Content was filtered:', candidate);
+      throw new Error('AI response was filtered for safety');
+    }
+    
+    const aiResponse = candidate.content.parts[0].text;
+    console.log('AI Response:', aiResponse);
+    
+    // Parse the JSON array from AI response with better error handling
     let subTasks: string[];
     try {
-      subTasks = JSON.parse(aiResponse.trim());
+      // Clean up the response - remove markdown code blocks if present
+      let cleanedResponse = aiResponse.trim();
+      cleanedResponse = cleanedResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+      cleanedResponse = cleanedResponse.trim();
+      
+      // Try to fix incomplete JSON if needed
+      if (cleanedResponse.startsWith('[') && !cleanedResponse.endsWith(']')) {
+        // Find last complete item and close the array
+        const lastCompleteQuote = cleanedResponse.lastIndexOf('",');
+        if (lastCompleteQuote > 0) {
+          cleanedResponse = cleanedResponse.substring(0, lastCompleteQuote + 1) + '\n]';
+          console.log('Fixed incomplete JSON array');
+        }
+      }
+      
+      subTasks = JSON.parse(cleanedResponse);
     } catch (parseError) {
       console.error('Failed to parse AI response:', aiResponse);
+      
       // Fallback: try to extract JSON array from response
       const jsonMatch = aiResponse.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
-        subTasks = JSON.parse(jsonMatch[0]);
+        try {
+          let extracted = jsonMatch[0];
+          
+          // Try to fix incomplete JSON
+          if (!extracted.endsWith(']')) {
+            const lastCompleteQuote = extracted.lastIndexOf('",');
+            if (lastCompleteQuote > 0) {
+              extracted = extracted.substring(0, lastCompleteQuote + 1) + '\n]';
+            }
+          }
+          
+          subTasks = JSON.parse(extracted);
+        } catch (e) {
+          console.error('Failed to parse extracted JSON:', jsonMatch[0]);
+          
+          // Last resort: Try to extract individual quoted strings and build array
+          const stringMatches = aiResponse.match(/"([^"\\]*(\\.[^"\\]*)*)"/g);
+          if (stringMatches && stringMatches.length > 0) {
+            subTasks = stringMatches.map((s: string) => s.slice(1, -1)); // Remove quotes
+            console.log('Extracted strings from malformed JSON:', subTasks.length, 'items');
+          } else {
+            throw new Error('Could not parse AI response as JSON array');
+          }
+        }
       } else {
-        throw new Error('Invalid AI response format');
+        // Try to extract quoted strings directly
+        const stringMatches = aiResponse.match(/"([^"\\]*(\\.[^"\\]*)*)"/g);
+        if (stringMatches && stringMatches.length > 0) {
+          subTasks = stringMatches.map((s: string) => s.slice(1, -1)); // Remove quotes
+          console.log('Extracted strings without JSON structure:', subTasks.length, 'items');
+        } else {
+          console.error('No JSON array or quoted strings found in response');
+          throw new Error('AI response does not contain valid task items');
+        }
       }
     }
     
-    if (!Array.isArray(subTasks) || subTasks.length === 0) {
-      throw new Error('Invalid AI response format');
+    // Validate the response
+    if (!Array.isArray(subTasks)) {
+      throw new Error('AI response is not an array');
+    }
+    
+    if (subTasks.length === 0) {
+      throw new Error('AI returned empty task list');
+    }
+    
+    // Validate each sub-task is a non-empty string
+    subTasks = subTasks.filter(task => typeof task === 'string' && task.trim().length > 0);
+    
+    if (subTasks.length === 0) {
+      throw new Error('AI returned no valid sub-tasks');
     }
 
-    return NextResponse.json({ subTasks });
+    return NextResponse.json({ 
+      subTasks,
+      source: 'ai',
+      model: model // Include which model was used
+    });
 
   } catch (error) {
     console.error('AI Breakdown error:', error);
     
-    // Fallback to mock implementation on any error
+    // Provide fallback for any error
     try {
-      const { mainTask } = await req.json();
-      if (mainTask) {
-        const subTasks = await generateMockSubTasks(mainTask);
-        return NextResponse.json({ 
-          subTasks,
-          usingFallback: true,
-          message: 'Using fallback implementation. AI service temporarily unavailable.'
-        });
-      }
+      const body = await req.json();
+      const mainTask = body.mainTask;
+      
+      return NextResponse.json({
+        error: 'AI_SERVICE_ERROR',
+        message: 'AI service temporarily unavailable. Here\'s a basic breakdown to get you started.',
+        subTasks: generateBasicBreakdown(mainTask),
+        usingFallback: true
+      }, { status: 200 }); // Return 200 with fallback data
     } catch (fallbackError) {
-      // If fallback also fails, return error
+      return NextResponse.json(
+        { 
+          error: 'Failed to generate task breakdown',
+          details: error instanceof Error ? error.message : 'Unknown error'
+        },
+        { status: 500 }
+      );
     }
-    
-    return NextResponse.json(
-      { error: 'Failed to generate task breakdown' },
-      { status: 500 }
-    );
   }
 }
 
-// Mock function - replace with actual AI API call
-async function generateMockSubTasks(mainTask: string): Promise<string[]> {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
 
-  // Domain-aware keyword-based mock responses
-  const taskLower = mainTask.toLowerCase();
-
-  // ACADEMICS / STUDYING
-  if (taskLower.includes('exam') || taskLower.includes('study') || taskLower.includes('review') || 
-      taskLower.includes('midterm') || taskLower.includes('final') || taskLower.includes('course') ||
-      taskLower.includes('learn') || taskLower.includes('dsa') || taskLower.includes('algorithm')) {
-    return [
-      "Review course syllabus and identify key topics",
-      "Create comprehensive summary notes for each chapter",
-      "Practice solving example problems from lectures",
-      "Complete practice problems from textbook",
-      "Review and understand previous exam questions",
-      "Create flashcards for important concepts",
-      "Take timed practice tests",
-      "Identify weak areas and focus review sessions"
-    ];
-  }
-
-  // SOFTWARE DEVELOPMENT - Authentication
-  if (taskLower.includes('auth') || taskLower.includes('login') || taskLower.includes('user')) {
-    return [
-      "Define authentication requirements and security standards",
-      "Design database schema for user accounts and sessions",
-      "Implement user registration with input validation",
-      "Create login functionality with JWT token generation",
-      "Build password hashing and secure storage system",
-      "Develop email verification workflow",
-      "Add password reset functionality with secure tokens",
-      "Write comprehensive unit and integration tests"
-    ];
-  }
-
-  // SOFTWARE DEVELOPMENT - API/Backend
-  if (taskLower.includes('api') || taskLower.includes('backend') || taskLower.includes('server')) {
-    return [
-      "Define API endpoints and route structure",
-      "Set up database models and schemas",
-      "Implement CRUD operations for main entities",
-      "Add authentication and authorization middleware",
-      "Create input validation and error handling",
-      "Write API documentation with examples",
-      "Add rate limiting and security measures",
-      "Deploy API to production environment"
-    ];
-  }
-
-  // SOFTWARE DEVELOPMENT - UI/Frontend
-  if (taskLower.includes('ui') || taskLower.includes('frontend') || taskLower.includes('design') || taskLower.includes('dashboard')) {
-    return [
-      "Create wireframes and design mockups",
-      "Set up component library and styling system",
-      "Build reusable UI components",
-      "Implement responsive layouts for mobile and desktop",
-      "Add form validation and error states",
-      "Integrate with backend API endpoints",
-      "Test across different browsers and devices",
-      "Optimize performance and accessibility"
-    ];
-  }
-
-  // CONTENT CREATION / MARKETING
-  if (taskLower.includes('content') || taskLower.includes('blog') || taskLower.includes('marketing') ||
-      taskLower.includes('social') || taskLower.includes('campaign') || taskLower.includes('write')) {
-    return [
-      "Research target audience and content goals",
-      "Brainstorm topics and create content calendar",
-      "Write initial draft with key messages",
-      "Create visuals and supporting media",
-      "Edit and refine content for clarity",
-      "Optimize for SEO and engagement",
-      "Schedule posts across platforms",
-      "Monitor analytics and adjust strategy"
-    ];
-  }
-
-  // HOUSEHOLD / CLEANING
-  if (taskLower.includes('clean') || taskLower.includes('organize') || taskLower.includes('room') ||
-      taskLower.includes('house') || taskLower.includes('kitchen') || taskLower.includes('laundry')) {
-    return [
-      "Gather all cleaning supplies and materials",
-      "Declutter and remove unnecessary items",
-      "Dust all surfaces from top to bottom",
-      "Vacuum or sweep all floors",
-      "Clean windows and mirrors",
-      "Organize items into proper storage",
-      "Dispose of trash and recyclables",
-      "Verify everything is clean and in place"
-    ];
-  }
-
-  // PERSONAL FINANCE
-  if (taskLower.includes('budget') || taskLower.includes('finance') || taskLower.includes('money') ||
-      taskLower.includes('savings') || taskLower.includes('investment')) {
-    return [
-      "Review current income and expenses",
-      "Track spending for at least one month",
-      "Categorize expenses into fixed and variable",
-      "Identify areas for potential savings",
-      "Create monthly budget with targets",
-      "Set up automatic savings transfers",
-      "Research investment options if applicable",
-      "Review and adjust budget monthly"
-    ];
-  }
-
-  // Generic breakdown for any other task
-  return [
-    "Define clear goals and success criteria",
-    "Research and gather necessary information",
-    "Create detailed action plan with timeline",
-    "Identify required resources and tools",
-    "Execute first phase of the plan",
-    "Review progress and adjust approach",
-    "Complete remaining tasks systematically",
-    "Verify completion and document results"
-  ];
-}

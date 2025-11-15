@@ -318,11 +318,32 @@ export default function DashboardPage() {
         body: JSON.stringify({ mainTask }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate sub-tasks');
+      const data = await response.json();
+      
+      // Handle rate limit or fallback scenarios
+      if (response.status === 429 || data.error === 'AI_MODELS_UNAVAILABLE') {
+        const attemptedModels = data.attemptedModels?.join(', ') || 'multiple models';
+        alert(`⏳ AI models temporarily unavailable.\n\nTried: ${attemptedModels}\n\n${data.message || 'Using intelligent fallback breakdown.'}`);
+        // Still use the fallback tasks if provided
+        if (data.subTasks && data.subTasks.length > 0) {
+          // Continue with fallback tasks
+        } else {
+          return;
+        }
+      } else if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate sub-tasks');
       }
 
-      const { subTasks } = await response.json();
+      const { subTasks, usingFallback, message, model } = data;
+      
+      if (!subTasks || subTasks.length === 0) {
+        throw new Error('No sub-tasks were generated');
+      }
+      
+      // Show info if using fallback
+      if (usingFallback && response.ok) {
+        alert(`ℹ️ ${message}\n\nGenerating ${subTasks.length} sub-tasks...`);
+      }
       
       // Create all sub-tasks in the todo column
       for (const subTask of subTasks) {
@@ -337,12 +358,11 @@ export default function DashboardPage() {
       // Refresh tasks to show the new sub-tasks
       await fetchTasks();
       
-      // Show success message
-      alert(`✅ Successfully created ${subTasks.length} sub-tasks!`);
+      // Success - no alert needed, tasks are now visible in the board
       
     } catch (error) {
       console.error('AI Breakdown error:', error);
-      alert('❌ Failed to generate task breakdown. Please try again.');
+      alert('❌ Failed to generate task breakdown. Please try again later.');
       throw error; // Re-throw to let modal handle it
     }
   };
