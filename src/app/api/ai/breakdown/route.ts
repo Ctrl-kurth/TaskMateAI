@@ -35,7 +35,7 @@ async function tryGeminiModels(systemPrompt: string, userPrompt: string, geminiA
             ],
             generationConfig: {
               temperature: 0.8,
-              maxOutputTokens: 2000,  // Increased to allow complete responses
+              maxOutputTokens: 800,
               topP: 0.95,
               topK: 40,
             },
@@ -286,16 +286,6 @@ Generate a highly specific, actionable breakdown with concrete details relevant 
       cleanedResponse = cleanedResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '');
       cleanedResponse = cleanedResponse.trim();
       
-      // Try to fix incomplete JSON if needed
-      if (cleanedResponse.startsWith('[') && !cleanedResponse.endsWith(']')) {
-        // Find last complete item and close the array
-        const lastCompleteQuote = cleanedResponse.lastIndexOf('",');
-        if (lastCompleteQuote > 0) {
-          cleanedResponse = cleanedResponse.substring(0, lastCompleteQuote + 1) + '\n]';
-          console.log('Fixed incomplete JSON array');
-        }
-      }
-      
       subTasks = JSON.parse(cleanedResponse);
     } catch (parseError) {
       console.error('Failed to parse AI response:', aiResponse);
@@ -304,39 +294,14 @@ Generate a highly specific, actionable breakdown with concrete details relevant 
       const jsonMatch = aiResponse.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
         try {
-          let extracted = jsonMatch[0];
-          
-          // Try to fix incomplete JSON
-          if (!extracted.endsWith(']')) {
-            const lastCompleteQuote = extracted.lastIndexOf('",');
-            if (lastCompleteQuote > 0) {
-              extracted = extracted.substring(0, lastCompleteQuote + 1) + '\n]';
-            }
-          }
-          
-          subTasks = JSON.parse(extracted);
+          subTasks = JSON.parse(jsonMatch[0]);
         } catch (e) {
           console.error('Failed to parse extracted JSON:', jsonMatch[0]);
-          
-          // Last resort: Try to extract individual quoted strings and build array
-          const stringMatches = aiResponse.match(/"([^"\\]*(\\.[^"\\]*)*)"/g);
-          if (stringMatches && stringMatches.length > 0) {
-            subTasks = stringMatches.map((s: string) => s.slice(1, -1)); // Remove quotes
-            console.log('Extracted strings from malformed JSON:', subTasks.length, 'items');
-          } else {
-            throw new Error('Could not parse AI response as JSON array');
-          }
+          throw new Error('Could not parse AI response as JSON array');
         }
       } else {
-        // Try to extract quoted strings directly
-        const stringMatches = aiResponse.match(/"([^"\\]*(\\.[^"\\]*)*)"/g);
-        if (stringMatches && stringMatches.length > 0) {
-          subTasks = stringMatches.map((s: string) => s.slice(1, -1)); // Remove quotes
-          console.log('Extracted strings without JSON structure:', subTasks.length, 'items');
-        } else {
-          console.error('No JSON array or quoted strings found in response');
-          throw new Error('AI response does not contain valid task items');
-        }
+        console.error('No JSON array found in response');
+        throw new Error('AI response does not contain a valid JSON array');
       }
     }
     

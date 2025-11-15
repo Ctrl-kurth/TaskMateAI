@@ -358,7 +358,14 @@ export default function DashboardPage() {
       // Refresh tasks to show the new sub-tasks
       await fetchTasks();
       
-      // Success - no alert needed, tasks are now visible in the board
+      // Show success message with model info
+      if (!usingFallback && model) {
+        alert(`✅ AI (${model}) successfully created ${subTasks.length} sub-tasks!`);
+      } else if (!usingFallback) {
+        alert(`✅ AI successfully created ${subTasks.length} sub-tasks!`);
+      } else {
+        alert(`✅ Created ${subTasks.length} sub-tasks to get you started!`);
+      }
       
     } catch (error) {
       console.error('AI Breakdown error:', error);
