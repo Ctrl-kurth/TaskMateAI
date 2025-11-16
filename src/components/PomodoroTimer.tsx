@@ -281,7 +281,7 @@ export default function PomodoroTimer({ task, onClose, onTimeUpdate }: PomodoroT
 
           {/* Time and Icon */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <div className={`bg-gradient-to-r ${getModeColor()} p-3 rounded-full mb-3 text-white`}>
+            <div className={`bg-linear-to-r ${getModeColor()} p-3 rounded-full mb-3 text-white`}>
               {getModeIcon()}
             </div>
             <div className="text-6xl font-bold text-white">
