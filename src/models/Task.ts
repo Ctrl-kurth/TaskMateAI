@@ -10,6 +10,9 @@ export interface ITask extends Document {
   assignee?: string;
   dueDate?: Date;
   user: mongoose.Types.ObjectId;
+  estimatedMinutes?: number;
+  actualMinutes?: number;
+  pomodoroSessions?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -44,6 +47,21 @@ const TaskSchema: Schema<ITask> = new Schema(
     },
     dueDate: {
       type: Date,
+    },
+    estimatedMinutes: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
+    actualMinutes: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
+    pomodoroSessions: {
+      type: Number,
+      min: 0,
+      default: 0,
     },
     user: {
       type: Schema.Types.ObjectId,

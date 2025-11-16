@@ -5,5 +5,11 @@
   "framework": "nextjs",
   "outputDirectory": ".next",
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "crons": [
+    {
+      "path": "/api/cron/check-deadlines",
+      "schedule": "0 */6 * * *"
+    }
+  ]
 }

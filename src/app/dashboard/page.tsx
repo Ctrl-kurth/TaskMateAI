@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import PomodoroTimer from '@/components/PomodoroTimer';
 
 interface Task {
   _id: string;
@@ -11,6 +12,9 @@ interface Task {
   priority?: 'low' | 'medium' | 'high';
   assignee?: string;
   dueDate?: string;
+  estimatedMinutes?: number;
+  actualMinutes?: number;
+  pomodoroSessions?: number;
   createdAt: string;
 }
 
@@ -43,6 +47,9 @@ export default function DashboardPage() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ name: string; email: string } | null>(null);
+  const [pomodoroTask, setPomodoroTask] = useState<Task | null>(null);
+  const [pendingAssignments, setPendingAssignments] = useState<any[]>([]);
+  const [showAssignmentModal, setShowAssignmentModal] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -65,9 +72,13 @@ export default function DashboardPage() {
     fetchTasks();
     fetchTeamMembers();
     fetchNotifications();
+    fetchPendingAssignments();
     
-    // Poll for new notifications every 10 seconds
-    const interval = setInterval(fetchNotifications, 10000);
+    // Poll for new notifications and assignments every 10 seconds
+    const interval = setInterval(() => {
+      fetchNotifications();
+      fetchPendingAssignments();
+    }, 10000);
     return () => clearInterval(interval);
   }, [router]);
 
@@ -120,6 +131,53 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
+    }
+  };
+
+  const fetchPendingAssignments = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/tasks/assign', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setPendingAssignments(data.pendingTasks || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch pending assignments:', error);
+    }
+  };
+
+  const handleAssignmentResponse = async (assignedTaskId: string, action: 'accept' | 'reject') => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/tasks/assign/${assignedTaskId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ action }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        if (action === 'accept') {
+          alert('✅ Task accepted and added to your tasks!');
+          await fetchTasks();
+        } else {
+          alert('❌ Task rejected');
+        }
+        await fetchPendingAssignments();
+        await fetchNotifications();
+      } else {
+        alert(data.error || 'Failed to respond to task assignment');
+      }
+    } catch (error) {
+      console.error('Failed to respond to assignment:', error);
+      alert('Failed to respond to task assignment');
     }
   };
 
@@ -372,6 +430,35 @@ export default function DashboardPage() {
     }
   };
 
+  const handlePomodoroTimeUpdate = async (taskId: string, minutesWorked: number) => {
+    try {
+      const token = localStorage.getItem('token');
+      const task = tasks.find(t => t._id === taskId);
+      if (!task) return;
+
+      const updatedActualMinutes = (task.actualMinutes || 0) + minutesWorked;
+      const updatedPomodoroSessions = (task.pomodoroSessions || 0) + 1;
+
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          actualMinutes: updatedActualMinutes,
+          pomodoroSessions: updatedPomodoroSessions,
+        }),
+      });
+
+      if (response.ok) {
+        await fetchTasks();
+      }
+    } catch (error) {
+      console.error('Failed to update task time:', error);
+    }
+  };
+
   const filteredTasks = tasks.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          (task.description?.toLowerCase() || '').includes(searchQuery.toLowerCase());
@@ -388,6 +475,9 @@ export default function DashboardPage() {
     todo: tasks.filter(t => t.status === 'todo').length,
     inProgress: tasks.filter(t => t.status === 'inprogress').length,
     completed: tasks.filter(t => t.status === 'done').length,
+    totalPomodoros: tasks.reduce((sum, t) => sum + (t.pomodoroSessions || 0), 0),
+    totalTimeSpent: tasks.reduce((sum, t) => sum + (t.actualMinutes || 0), 0),
+    totalTimeEstimated: tasks.reduce((sum, t) => sum + (t.estimatedMinutes || 0), 0),
   };
 
   if (loading) {
@@ -420,6 +510,24 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+            {/* Pending Assignments Bell */}
+            {pendingAssignments.length > 0 && (
+              <div className="relative">
+                <button 
+                  onClick={() => setShowAssignmentModal(true)}
+                  className="relative flex items-center gap-2 bg-yellow-600 text-white p-2 rounded-md hover:bg-yellow-700 transition-colors cursor-pointer"
+                  title="Pending Task Assignments"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {pendingAssignments.length}
+                  </span>
+                </button>
+              </div>
+            )}
+
             {/* Notification Bell */}
             <div className="relative">
               <button 
@@ -517,7 +625,7 @@ export default function DashboardPage() {
 
             <button 
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-1 md:gap-2 bg-gray-200 text-black px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium hover:bg-gray-300 transition-colors whitespace-nowrap cursor-pointer"
+              className="flex items-center gap-1 md:gap-2 bg-white text-black px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium hover:bg-gray-100 transition-colors whitespace-nowrap cursor-pointer"
             >
               <span>+</span>
               <span className="hidden sm:inline">New Task</span>
@@ -525,7 +633,7 @@ export default function DashboardPage() {
             </button>
             <button 
               onClick={() => setShowAIBreakdown(true)}
-              className="flex items-center gap-1 md:gap-2 bg-gray-700 text-white px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium hover:bg-gray-600 transition-colors whitespace-nowrap cursor-pointer"
+              className="flex items-center gap-1 md:gap-2 bg-white text-black px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium hover:bg-gray-100 transition-colors whitespace-nowrap cursor-pointer"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -535,7 +643,7 @@ export default function DashboardPage() {
             </button>
             <button 
               onClick={() => setShowTeamModal(true)}
-              className="flex items-center gap-1 md:gap-2 bg-gray-600 text-white px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium hover:bg-gray-500 transition-colors whitespace-nowrap cursor-pointer"
+              className="flex items-center gap-1 md:gap-2 bg-white text-black px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium hover:bg-gray-100 transition-colors whitespace-nowrap cursor-pointer"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -656,6 +764,62 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Pomodoro & Time Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
+          <div className="bg-gradient-to-br from-red-500/10 to-orange-500/10 border border-red-500/20 rounded-lg p-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-red-500/20 p-3 rounded-full">
+                <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs text-gray-400 uppercase">Pomodoros</p>
+                <p className="text-2xl font-bold text-red-400">{stats.totalPomodoros}</p>
+                <p className="text-xs text-gray-500">{Math.round(stats.totalPomodoros * 25)} minutes focused</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-lg p-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-500/20 p-3 rounded-full">
+                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs text-gray-400 uppercase">Time Spent</p>
+                <p className="text-2xl font-bold text-blue-400">
+                  {Math.floor(stats.totalTimeSpent / 60)}h {Math.round(stats.totalTimeSpent % 60)}m
+                </p>
+                <p className="text-xs text-gray-500">Actual work time</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-lg p-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-green-500/20 p-3 rounded-full">
+                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-xs text-gray-400 uppercase">Accuracy</p>
+                <p className="text-2xl font-bold text-green-400">
+                  {stats.totalTimeEstimated > 0 
+                    ? Math.round((stats.totalTimeSpent / stats.totalTimeEstimated) * 100) 
+                    : 0}%
+                </p>
+                <p className="text-xs text-gray-500">
+                  {stats.totalTimeSpent > stats.totalTimeEstimated ? 'Over' : 'Under'} estimated
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Search */}
         <div className="mb-4 md:mb-6">
           <div className="relative">
@@ -715,6 +879,7 @@ export default function DashboardPage() {
                       isSelected={selectedTasks.has(task._id)}
                       onSelect={handleTaskSelection}
                       isSelectionMode={isSelectionMode}
+                      onStartPomodoro={setPomodoroTask}
                     />
                   ))}
                 </div>
@@ -739,6 +904,7 @@ export default function DashboardPage() {
                       isSelected={selectedTasks.has(task._id)}
                       onSelect={handleTaskSelection}
                       isSelectionMode={isSelectionMode}
+                      onStartPomodoro={setPomodoroTask}
                     />
                   ))}
                 </div>
@@ -763,6 +929,7 @@ export default function DashboardPage() {
                       isSelected={selectedTasks.has(task._id)}
                       onSelect={handleTaskSelection}
                       isSelectionMode={isSelectionMode}
+                      onStartPomodoro={setPomodoroTask}
                     />
                   ))}
                 </div>
@@ -834,6 +1001,20 @@ export default function DashboardPage() {
           members={allTeamMembers}
           onClose={() => setShowTeamModal(false)}
           onRefresh={fetchTeamMembers}
+        />
+      )}
+      {pomodoroTask && (
+        <PomodoroTimer
+          task={pomodoroTask}
+          onClose={() => setPomodoroTask(null)}
+          onTimeUpdate={handlePomodoroTimeUpdate}
+        />
+      )}
+      {showAssignmentModal && (
+        <AssignmentModal
+          assignments={pendingAssignments}
+          onClose={() => setShowAssignmentModal(false)}
+          onRespond={handleAssignmentResponse}
         />
       )}
     </div>
@@ -1177,10 +1358,12 @@ function TaskModal({
   const [priority, setPriority] = useState(task?.priority || 'medium');
   const [assignee, setAssignee] = useState(task?.assignee || '');
   const [dueDate, setDueDate] = useState(task?.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '');
+  const [estimatedMinutes, setEstimatedMinutes] = useState(task?.estimatedMinutes || 0);
+  const [showAssignToFriend, setShowAssignToFriend] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({ title, description, status, priority, assignee, dueDate });
+    onSave({ title, description, status, priority, assignee, dueDate, estimatedMinutes });
   };
 
   return (
@@ -1270,6 +1453,23 @@ function TaskModal({
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Estimated Time (minutes)
+            </label>
+            <input
+              type="number"
+              min="0"
+              placeholder="e.g., 60"
+              value={estimatedMinutes || ''}
+              onChange={(e) => setEstimatedMinutes(parseInt(e.target.value) || 0)}
+              className="w-full bg-black border border-gray-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-gray-600"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              💡 Helps with Pomodoro planning (1 Pomodoro = 25 minutes)
+            </p>
+          </div>
+
           <div className="flex gap-3 pt-4">
             <button
               type="submit"
@@ -1285,7 +1485,30 @@ function TaskModal({
               Cancel
             </button>
           </div>
+          
+          {task && (
+            <div className="pt-3 border-t border-gray-800">
+              <button
+                type="button"
+                onClick={() => setShowAssignToFriend(true)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 md:py-2 rounded-md font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                Assign to Friend
+              </button>
+            </div>
+          )}
         </form>
+        
+        {showAssignToFriend && task && (
+          <AssignTaskModal
+            task={task}
+            friends={teamMembers}
+            onClose={() => setShowAssignToFriend(false)}
+          />
+        )}
       </div>
     </div>
   );
@@ -1298,7 +1521,8 @@ function TaskCard({
   onToggleStatus, 
   isSelected, 
   onSelect, 
-  isSelectionMode 
+  isSelectionMode,
+  onStartPomodoro
 }: { 
   task: Task; 
   onEdit: (task: Task) => void; 
@@ -1307,6 +1531,7 @@ function TaskCard({
   isSelected?: boolean;
   onSelect?: (taskId: string) => void;
   isSelectionMode?: boolean;
+  onStartPomodoro?: (task: Task) => void;
 }) {
   const [showMenu, setShowMenu] = useState(false);
 
@@ -1439,6 +1664,36 @@ function TaskCard({
         <p className="text-xs md:text-sm text-gray-400 mb-3 md:mb-4 wrap-break-word">{task.description}</p>
       )}
 
+      {/* Time Tracking Info */}
+      {(task.pomodoroSessions || task.estimatedMinutes || task.actualMinutes) && (
+        <div className="flex items-center gap-3 mb-3 text-xs">
+          {task.pomodoroSessions && task.pomodoroSessions > 0 && (
+            <div className="flex items-center gap-1 text-red-400">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{task.pomodoroSessions} 🍅</span>
+            </div>
+          )}
+          {task.actualMinutes && task.actualMinutes > 0 && (
+            <div className="flex items-center gap-1 text-blue-400">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{Math.round(task.actualMinutes)}m</span>
+            </div>
+          )}
+          {task.estimatedMinutes && task.estimatedMinutes > 0 && (
+            <div className="flex items-center gap-1 text-gray-500">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+              <span>est. {task.estimatedMinutes}m</span>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="flex items-center justify-between pt-2 md:pt-3 border-t border-gray-800">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-xs">
@@ -1451,6 +1706,15 @@ function TaskCard({
             <span className="text-xs text-gray-500">{formatDate(task.dueDate)}</span>
           )}
           <div className="flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+            <button
+              onClick={() => onStartPomodoro?.(task)}
+              className="p-1.5 md:p-1 hover:bg-gray-800 active:bg-gray-700 rounded text-gray-400 hover:text-blue-400 cursor-pointer"
+              title="Start Pomodoro Timer"
+            >
+              <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
             <button
               onClick={() => onEdit(task)}
               className="p-1.5 md:p-1 hover:bg-gray-800 active:bg-gray-700 rounded text-gray-400 hover:text-white cursor-pointer"
@@ -1471,6 +1735,252 @@ function TaskCard({
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function AssignTaskModal({
+  task,
+  friends,
+  onClose,
+}: {
+  task: Task;
+  friends: TeamMember[];
+  onClose: () => void;
+}) {
+  const [selectedFriendId, setSelectedFriendId] = useState('');
+  const [isAssigning, setIsAssigning] = useState(false);
+
+  const handleAssign = async () => {
+    if (!selectedFriendId) {
+      alert('Please select a friend to assign this task to');
+      return;
+    }
+
+    setIsAssigning(true);
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/tasks/assign', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          taskId: task._id,
+          assignToUserId: selectedFriendId,
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert(`✓ Task assigned to ${friends.find(f => f._id === selectedFriendId)?.name}!`);
+        onClose();
+      } else {
+        alert(data.error || 'Failed to assign task');
+      }
+    } catch (error) {
+      console.error('Failed to assign task:', error);
+      alert('Failed to assign task');
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+      <div className="bg-[#0a0a0a] border border-gray-800 rounded-xl max-w-md w-full p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-bold text-white">Assign Task to Friend</h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white p-2 cursor-pointer"
+            disabled={isAssigning}
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="mb-4 p-4 bg-black border border-gray-800 rounded-lg">
+          <h4 className="font-semibold text-white mb-1">{task.title}</h4>
+          {task.description && (
+            <p className="text-sm text-gray-400 line-clamp-2">{task.description}</p>
+          )}
+          <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+            {task.priority && (
+              <span className={`px-2 py-1 rounded ${
+                task.priority === 'high' ? 'bg-red-500/10 text-red-400' :
+                task.priority === 'medium' ? 'bg-yellow-500/10 text-yellow-400' :
+                'bg-blue-500/10 text-blue-400'
+              }`}>
+                {task.priority}
+              </span>
+            )}
+            {task.estimatedMinutes && (
+              <span>⏱️ {task.estimatedMinutes} min</span>
+            )}
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Select Friend
+          </label>
+          {friends.length === 0 ? (
+            <p className="text-sm text-gray-500 text-center py-4 border border-dashed border-gray-800 rounded-lg">
+              No friends available. Add friends from the Friends menu.
+            </p>
+          ) : (
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {friends.map((friend) => (
+                <label
+                  key={friend._id}
+                  className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                    selectedFriendId === friend._id
+                      ? 'border-blue-500 bg-blue-500/10'
+                      : 'border-gray-800 hover:border-gray-700'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="friend"
+                    value={friend._id}
+                    checked={selectedFriendId === friend._id}
+                    onChange={(e) => setSelectedFriendId(e.target.value)}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-black text-xs font-medium">
+                    {friend.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-white text-sm">{friend.name}</p>
+                    <p className="text-xs text-gray-400">{friend.email}</p>
+                  </div>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-medium transition-colors cursor-pointer"
+            disabled={isAssigning}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleAssign}
+            disabled={!selectedFriendId || isAssigning}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white py-2 px-4 rounded-lg font-medium transition-colors cursor-pointer"
+          >
+            {isAssigning ? 'Assigning...' : 'Assign Task'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AssignmentModal({
+  assignments,
+  onClose,
+  onRespond,
+}: {
+  assignments: any[];
+  onClose: () => void;
+  onRespond: (assignedTaskId: string, action: 'accept' | 'reject') => void;
+}) {
+  return (
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-[#0a0a0a] border border-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-white">Pending Task Assignments</h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white p-2 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+
+        {assignments.length === 0 ? (
+          <div className="text-center text-gray-500 py-8">
+            No pending assignments
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {assignments.map((assignment) => (
+              <div
+                key={assignment._id}
+                className="bg-black border border-gray-800 rounded-lg p-4"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-white mb-1">
+                      {assignment.title}
+                    </h3>
+                    <p className="text-sm text-gray-400">
+                      From: <span className="text-blue-400">{assignment.assignedBy.name}</span> ({assignment.assignedBy.email})
+                    </p>
+                  </div>
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    assignment.priority === 'high' 
+                      ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+                      : assignment.priority === 'medium'
+                      ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+                      : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                  }`}>
+                    {assignment.priority}
+                  </span>
+                </div>
+
+                {assignment.description && (
+                  <p className="text-gray-300 text-sm mb-4">
+                    {assignment.description}
+                  </p>
+                )}
+
+                <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
+                  {assignment.estimatedMinutes && (
+                    <div className="flex items-center gap-1">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>Estimated: {assignment.estimatedMinutes} minutes</span>
+                    </div>
+                  )}
+                  {assignment.dueDate && (
+                    <div className="flex items-center gap-1">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>Due: {new Date(assignment.dueDate).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => onRespond(assignment._id, 'accept')}
+                    className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium transition-colors cursor-pointer"
+                  >
+                    ✓ Accept
+                  </button>
+                  <button
+                    onClick={() => onRespond(assignment._id, 'reject')}
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-medium transition-colors cursor-pointer"
+                  >
+                    ✕ Reject
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

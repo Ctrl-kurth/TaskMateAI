@@ -239,6 +239,39 @@ export async function PUT(
       }
     }
 
+    // Sync updates to assigned tasks
+    const AssignedTask = (await import('@/models/AssignedTask')).default;
+    
+    // Find if this task is an original task that was assigned
+    const assignedTasks = await AssignedTask.find({
+      originalTask: id,
+      status: 'accepted',
+      acceptedTaskId: { $exists: true, $ne: null }
+    });
+
+    // Update all accepted tasks with the same changes
+    for (const assignedTask of assignedTasks) {
+      if (assignedTask.acceptedTaskId) {
+        const syncUpdate: any = {};
+        if (title !== undefined) syncUpdate.title = title.trim();
+        if (description !== undefined) syncUpdate.description = description.trim();
+        if (status !== undefined) syncUpdate.status = status;
+        if (priority !== undefined) syncUpdate.priority = priority;
+        if (dueDate !== undefined) syncUpdate.dueDate = parsedDueDate;
+
+        await Task.findByIdAndUpdate(assignedTask.acceptedTaskId, syncUpdate);
+        
+        // Notify the assigned user about the update
+        const updater = await User.findById(authUser.userId);
+        await Notification.create({
+          userId: assignedTask.assignedTo,
+          type: 'task_updated',
+          message: `${updater?.name || 'Someone'} updated the task: "${task.title}"`,
+          taskId: assignedTask.acceptedTaskId,
+        });
+      }
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Task updated successfully',
