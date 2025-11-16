@@ -766,7 +766,7 @@ export default function DashboardPage() {
 
         {/* Pomodoro & Time Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
-          <div className="bg-gradient-to-br from-red-500/10 to-orange-500/10 border border-red-500/20 rounded-lg p-4">
+          <div className="bg-linear-to-br from-red-500/10 to-orange-500/10 border border-red-500/20 rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="bg-red-500/20 p-3 rounded-full">
                 <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -781,7 +781,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-lg p-4">
+          <div className="bg-linear-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="bg-blue-500/20 p-3 rounded-full">
                 <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -798,7 +798,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-lg p-4">
+          <div className="bg-linear-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="bg-green-500/20 p-3 rounded-full">
                 <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
