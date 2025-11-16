@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if assigning to self
-    if (assignedToUser._id.toString() === decoded.userId) {
+    if ((assignedToUser._id as any).toString() === decoded.userId) {
       return NextResponse.json({ error: 'Cannot assign task to yourself' }, { status: 400 });
     }
 
