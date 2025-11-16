@@ -35,9 +35,11 @@ async function tryGeminiModels(systemPrompt: string, userPrompt: string, geminiA
             ],
             generationConfig: {
               temperature: 0.8,
-              maxOutputTokens: 800,
+              maxOutputTokens: 4096,
               topP: 0.95,
               topK: 40,
+              // Disable thinking mode to get direct output
+              responseModalities: ["TEXT"]
             },
             safetySettings: [
               {
@@ -261,6 +263,9 @@ Generate a highly specific, actionable breakdown with concrete details relevant 
     
     const { data, model } = result;
     
+    // Log the full response for debugging
+    console.log('Full Gemini API response:', JSON.stringify(data, null, 2));
+    
     // Check if response was blocked or empty
     if (!data.candidates || data.candidates.length === 0) {
       console.error('Gemini API returned no candidates:', data);
@@ -275,7 +280,15 @@ Generate a highly specific, actionable breakdown with concrete details relevant 
       throw new Error('AI response was filtered for safety');
     }
     
-    const aiResponse = candidate.content.parts[0].text;
+    // Handle different response structures - check if parts exist
+    const parts = candidate.content.parts;
+    if (!parts || parts.length === 0 || !parts[0].text) {
+      console.error('Invalid response structure from Gemini API');
+      console.error('Candidate:', JSON.stringify(candidate, null, 2));
+      throw new Error('AI response missing text content');
+    }
+    
+    const aiResponse = parts[0].text;
     console.log('AI Response:', aiResponse);
     
     // Parse the JSON array from AI response with better error handling

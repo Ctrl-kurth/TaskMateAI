@@ -358,11 +358,9 @@ export default function DashboardPage() {
       // Refresh tasks to show the new sub-tasks
       await fetchTasks();
       
-      // Show success message with model info
-      if (!usingFallback && model) {
-        alert(`✅ AI (${model}) successfully created ${subTasks.length} sub-tasks!`);
-      } else if (!usingFallback) {
-        alert(`✅ AI successfully created ${subTasks.length} sub-tasks!`);
+      // Show success message
+      if (!usingFallback) {
+        alert(`✅ AI Breakdown successfully created ${subTasks.length} sub-tasks!`);
       } else {
         alert(`✅ Created ${subTasks.length} sub-tasks to get you started!`);
       }
