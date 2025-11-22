@@ -937,6 +937,78 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
+        {activeTab === 'todo' && (
+          <div>
+            <h2 className="text-sm font-medium text-gray-300 mb-3 md:mb-4">To Do Tasks</h2>
+            {todoTasks.length === 0 ? (
+              <p className="text-center text-gray-500 text-sm py-10 border border-dashed border-gray-800 rounded-lg">No to do tasks</p>
+            ) : (
+              <div className="space-y-4">
+                {todoTasks.map(task => (
+                  <TaskCard
+                    key={task._id}
+                    task={task}
+                    onEdit={openEditModal}
+                    onDelete={handleDeleteTask}
+                    onToggleStatus={handleToggleStatus}
+                    isSelected={selectedTasks.has(task._id)}
+                    onSelect={handleTaskSelection}
+                    isSelectionMode={isSelectionMode}
+                    onStartPomodoro={setPomodoroTask}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        {activeTab === 'inprogress' && (
+          <div>
+            <h2 className="text-sm font-medium text-gray-300 mb-3 md:mb-4">In Progress Tasks</h2>
+            {inProgressTasks.length === 0 ? (
+              <p className="text-center text-gray-500 text-sm py-10 border border-dashed border-gray-800 rounded-lg">No in progress tasks</p>
+            ) : (
+              <div className="space-y-4">
+                {inProgressTasks.map(task => (
+                  <TaskCard
+                    key={task._id}
+                    task={task}
+                    onEdit={openEditModal}
+                    onDelete={handleDeleteTask}
+                    onToggleStatus={handleToggleStatus}
+                    isSelected={selectedTasks.has(task._id)}
+                    onSelect={handleTaskSelection}
+                    isSelectionMode={isSelectionMode}
+                    onStartPomodoro={setPomodoroTask}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        {activeTab === 'done' && (
+          <div>
+            <h2 className="text-sm font-medium text-gray-300 mb-3 md:mb-4">Completed Tasks</h2>
+            {completedTasks.length === 0 ? (
+              <p className="text-center text-gray-500 text-sm py-10 border border-dashed border-gray-800 rounded-lg">No completed tasks yet</p>
+            ) : (
+              <div className="space-y-4">
+                {completedTasks.map(task => (
+                  <TaskCard
+                    key={task._id}
+                    task={task}
+                    onEdit={openEditModal}
+                    onDelete={handleDeleteTask}
+                    onToggleStatus={handleToggleStatus}
+                    isSelected={selectedTasks.has(task._id)}
+                    onSelect={handleTaskSelection}
+                    isSelectionMode={isSelectionMode}
+                    onStartPomodoro={setPomodoroTask}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       {/* Floating Action Buttons for Multi-Select */}
@@ -1457,14 +1529,40 @@ function TaskModal({
             <label className="block text-sm font-medium text-gray-300 mb-1">
               Estimated Time (minutes)
             </label>
-            <input
-              type="number"
-              min="0"
-              placeholder="e.g., 60"
-              value={estimatedMinutes || ''}
-              onChange={(e) => setEstimatedMinutes(parseInt(e.target.value) || 0)}
-              className="w-full bg-black border border-gray-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-gray-600"
-            />
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setEstimatedMinutes(m => Math.max(0, m - 5))}
+                className="px-3 py-2 rounded-md bg-gray-900 border border-gray-800 text-gray-300 hover:text-white hover:border-gray-700 active:scale-95 transition cursor-pointer"
+                aria-label="Decrease estimate by 5 minutes"
+              >−5</button>
+              <input
+                type="number"
+                min="0"
+                placeholder="60"
+                value={estimatedMinutes || ''}
+                onChange={(e) => setEstimatedMinutes(parseInt(e.target.value) || 0)}
+                className="flex-1 bg-black border border-gray-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-gray-600 appearance-none"
+                aria-label="Estimated minutes"
+              />
+              <button
+                type="button"
+                onClick={() => setEstimatedMinutes(m => m + 5)}
+                className="px-3 py-2 rounded-md bg-gray-900 border border-gray-800 text-gray-300 hover:text-white hover:border-gray-700 active:scale-95 transition cursor-pointer"
+                aria-label="Increase estimate by 5 minutes"
+              >+5</button>
+            </div>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {[25,50,60,90,120].map(preset => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => setEstimatedMinutes(preset)}
+                  className={`text-xs px-2 py-1 rounded border ${estimatedMinutes === preset ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-700 text-gray-400 hover:border-gray-600 hover:text-white'} transition cursor-pointer`}
+                  aria-label={`Set estimate to ${preset} minutes`}
+                >{preset}m</button>
+              ))}
+            </div>
             <p className="text-xs text-gray-500 mt-1">
               💡 Helps with Pomodoro planning (1 Pomodoro = 25 minutes)
             </p>
