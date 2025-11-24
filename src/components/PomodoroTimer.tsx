@@ -191,8 +191,8 @@ export default function PomodoroTimer({ task, onClose, onTimeUpdate }: PomodoroT
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
-      <div className="bg-[#0a0a0a] border border-gray-800 rounded-2xl shadow-2xl max-w-lg w-full p-4 sm:p-6 md:p-8 relative max-h-[95vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div className="bg-[#0a0a0a] border border-gray-800 rounded-2xl shadow-2xl max-w-lg w-full p-4 sm:p-6 md:p-8 relative my-auto">
         {/* Close Button */}
         <button
           onClick={onClose}
