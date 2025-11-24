@@ -194,12 +194,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // TODO: Replace this mock implementation with actual AI API call
-    // Options:
-    // 1. OpenAI API: https://platform.openai.com/docs/api-reference
-    // 2. Anthropic Claude API: https://docs.anthropic.com/claude/reference/
-    // 3. Your custom AI endpoint
-    
     const systemPrompt = `You are an expert task decomposition AI assistant specializing in breaking down complex tasks into actionable steps. Your role is to analyze any task and create a comprehensive, intelligent breakdown.
 
 CRITICAL: You MUST generate steps that are SPECIFICALLY tailored to the exact task provided. Do NOT use generic templates or placeholder steps.
