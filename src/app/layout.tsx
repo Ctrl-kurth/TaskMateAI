@@ -36,7 +36,7 @@ export default function RootLayout({
         <script src="https://accounts.google.com/gsi/client" async defer></script>
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} bg-black text-[#ededed] antialiased selection:bg-neutral-800 selection:text-white`}
       >
         {children}
       </body>

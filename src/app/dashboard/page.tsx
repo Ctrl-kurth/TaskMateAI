@@ -483,47 +483,48 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-gray-500">Loading...</div>
+        <div className="text-neutral-500 font-mono text-sm tracking-wide">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Header */}
-      <header className="border-b border-gray-800 px-4 md:px-8 py-4 md:py-5">
-        <div className="flex flex-col md:flex-row items-start md:items-start justify-between gap-4">
+    <div className="min-h-screen bg-black text-[#ededed] relative selection:bg-neutral-800 selection:text-white">
+      {/* Sticky Header Bar */}
+      <header className="sticky top-0 z-30 bg-black/70 backdrop-blur-md border-b border-neutral-800/80 px-4 md:px-8 py-3.5">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             {/* Back to Welcome Button */}
             <button
               onClick={() => router.push('/welcome')}
-              className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors group cursor-pointer"
+              className="flex items-center gap-1 text-neutral-400 hover:text-white transition-colors group cursor-pointer p-1"
               title="Back to Welcome"
             >
               <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <div>
-              <h1 className="text-xl md:text-2xl font-semibold">TaskMate AI</h1>
-              <p className="text-xs md:text-sm text-gray-400 mt-1">Manage your team's tasks and projects</p>
+            <div className="flex items-center gap-2.5">
+              <div>
+                <h1 className="text-base md:text-lg font-bold tracking-tight text-white">TaskMate AI</h1>
+                <p className="text-[11px] text-neutral-400 font-mono">Manage your team's tasks and projects</p>
+              </div>
             </div>
           </div>
+          
           <div className="flex items-center gap-2 md:gap-3 flex-wrap">
             {/* Pending Assignments Bell */}
             {pendingAssignments.length > 0 && (
               <div className="relative">
                 <button 
                   onClick={() => setShowAssignmentModal(true)}
-                  className="relative flex items-center gap-2 bg-yellow-600 text-white p-2 rounded-md hover:bg-yellow-700 transition-colors cursor-pointer"
+                  className="relative flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-300 px-3 py-1.5 rounded-lg hover:bg-amber-500/20 transition-all cursor-pointer text-xs font-mono"
                   title="Pending Task Assignments"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                    {pendingAssignments.length}
-                  </span>
+                  <span className="font-semibold">{pendingAssignments.length} Pending</span>
                 </button>
               </div>
             )}
@@ -532,13 +533,14 @@ export default function DashboardPage() {
             <div className="relative">
               <button 
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative flex items-center gap-2 bg-gray-800 text-white p-2 rounded-md hover:bg-gray-700 transition-colors cursor-pointer"
+                className="relative flex items-center justify-center bg-neutral-900 border border-neutral-800 text-neutral-300 p-2 rounded-lg hover:text-white hover:border-neutral-700 transition-all cursor-pointer"
+                title="Notifications"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-mono font-bold rounded-full h-4.5 w-4.5 flex items-center justify-center border-2 border-black">
                     {unreadCount}
                   </span>
                 )}
@@ -551,21 +553,21 @@ export default function DashboardPage() {
                     className="fixed inset-0 z-40" 
                     onClick={() => setShowNotifications(false)}
                   />
-                  <div className="fixed top-16 right-2 md:absolute md:top-auto md:right-0 md:mt-2 w-[calc(100%-1rem)] max-w-sm md:w-96 max-h-[80vh] md:max-h-128 bg-[#0a0a0a] border border-gray-800 rounded-lg shadow-lg z-50 overflow-hidden flex flex-col">
-                    <div className="bg-[#0a0a0a] border-b border-gray-800 p-4 flex items-center justify-between shrink-0">
-                      <h3 className="font-medium text-base">Notifications</h3>
-                      <div className="flex items-center gap-2">
+                  <div className="fixed top-16 right-2 md:absolute md:top-auto md:right-0 md:mt-2 w-[calc(100%-1rem)] max-w-sm md:w-96 max-h-[80vh] md:max-h-128 bg-neutral-950 border border-neutral-800 rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col">
+                    <div className="bg-neutral-900/60 border-b border-neutral-800 p-4 flex items-center justify-between shrink-0">
+                      <h3 className="font-semibold text-sm text-white">Notifications</h3>
+                      <div className="flex items-center gap-3">
                         {unreadCount > 0 && (
                           <button
                             onClick={handleMarkAllRead}
-                            className="text-xs text-blue-400 hover:text-blue-300 cursor-pointer"
+                            className="text-xs font-mono text-neutral-400 hover:text-white cursor-pointer"
                           >
                             Mark all read
                           </button>
                         )}
                         <button
                           onClick={() => setShowNotifications(false)}
-                          className="text-gray-400 hover:text-white p-1 cursor-pointer"
+                          className="text-neutral-400 hover:text-white text-xs cursor-pointer"
                         >
                           ✕
                         </button>
@@ -574,20 +576,20 @@ export default function DashboardPage() {
                     
                     <div className="overflow-y-auto flex-1">
                       {notifications.length === 0 ? (
-                        <div className="p-8 text-center text-gray-500 text-sm">
+                        <div className="p-8 text-center text-neutral-500 font-mono text-xs">
                           No notifications yet
                         </div>
                       ) : (
-                        <div className="divide-y divide-gray-800">
+                        <div className="divide-y divide-neutral-900">
                           {notifications.map((notif) => (
                             <div
                               key={notif._id}
-                              className={`p-4 hover:bg-black transition-colors ${
-                                !notif.read ? 'bg-blue-500/5' : ''
+                              className={`p-4 hover:bg-neutral-900/40 transition-colors ${
+                                !notif.read ? 'bg-neutral-900/20' : ''
                               }`}
                             >
-                              <p className="text-sm leading-relaxed">{notif.message}</p>
-                              <p className="text-xs text-gray-500 mt-2">
+                              <p className="text-xs text-neutral-200 leading-relaxed">{notif.message}</p>
+                              <p className="text-[10px] font-mono text-neutral-500 mt-2">
                                 {new Date(notif.createdAt).toLocaleString('en-US', {
                                   month: 'short',
                                   day: 'numeric',
@@ -601,13 +603,13 @@ export default function DashboardPage() {
                                 <div className="flex gap-2 mt-3">
                                   <button
                                     onClick={() => handleInvitationResponse(notif.teamMemberId, 'accept')}
-                                    className="flex-1 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-xs py-2 px-3 rounded-md transition-colors font-medium cursor-pointer"
+                                    className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs py-1.5 px-3 rounded-lg transition-colors font-medium cursor-pointer"
                                   >
                                     ✓ Accept
                                   </button>
                                   <button
                                     onClick={() => handleInvitationResponse(notif.teamMemberId, 'decline')}
-                                    className="flex-1 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white text-xs py-2 px-3 rounded-md transition-colors font-medium cursor-pointer"
+                                    className="flex-1 bg-rose-600 hover:bg-rose-500 text-white text-xs py-1.5 px-3 rounded-lg transition-colors font-medium cursor-pointer"
                                   >
                                     ✗ Decline
                                   </button>
@@ -625,27 +627,29 @@ export default function DashboardPage() {
 
             <button 
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-1 md:gap-2 bg-white text-black px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium hover:bg-gray-100 transition-colors whitespace-nowrap cursor-pointer"
+              className="flex items-center gap-1.5 bg-white text-black px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold hover:bg-neutral-200 transition-all shadow-xs whitespace-nowrap cursor-pointer"
             >
               <span>+</span>
               <span className="hidden sm:inline">New Task</span>
               <span className="sm:hidden">Task</span>
             </button>
+
             <button 
               onClick={() => setShowAIBreakdown(true)}
-              className="flex items-center gap-1 md:gap-2 bg-white text-black px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium hover:bg-gray-100 transition-colors whitespace-nowrap cursor-pointer"
+              className="flex items-center gap-1.5 bg-neutral-900 text-neutral-200 border border-neutral-800 px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-medium hover:border-neutral-700 hover:text-white transition-all whitespace-nowrap cursor-pointer"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
               <span className="hidden sm:inline">AI Breakdown</span>
               <span className="sm:hidden">AI</span>
             </button>
+
             <button 
               onClick={() => setShowTeamModal(true)}
-              className="flex items-center gap-1 md:gap-2 bg-white text-black px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium hover:bg-gray-100 transition-colors whitespace-nowrap cursor-pointer"
+              className="flex items-center gap-1.5 bg-neutral-900 text-neutral-200 border border-neutral-800 px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-medium hover:border-neutral-700 hover:text-white transition-all whitespace-nowrap cursor-pointer"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
               <span className="hidden sm:inline">Friends ({allTeamMembers.length})</span>
@@ -657,9 +661,9 @@ export default function DashboardPage() {
               <div className="relative">
                 <button
                   onClick={() => setShowUserDropdown(!showUserDropdown)}
-                  className="flex items-center justify-center w-10 h-10 rounded-full bg-white text-black text-sm font-medium hover:opacity-90 transition-opacity cursor-pointer"
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-white text-black text-xs font-bold hover:bg-neutral-200 transition-colors cursor-pointer shadow-xs"
                 >
-                  {currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                  {(currentUser.name || 'U').split(' ').map(n => n[0] || '').join('').toUpperCase().slice(0, 2)}
                 </button>
 
                 {/* User Dropdown */}
@@ -669,14 +673,14 @@ export default function DashboardPage() {
                       className="fixed inset-0 z-40" 
                       onClick={() => setShowUserDropdown(false)}
                     />
-                    <div className="absolute right-0 mt-2 w-64 bg-[#0a0a0a] border border-gray-800 rounded-lg shadow-lg z-50 p-4">
-                      <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-800">
-                        <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-black text-base font-medium">
-                          {currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                    <div className="absolute right-0 mt-2 w-64 bg-neutral-950 border border-neutral-800 rounded-xl shadow-2xl z-50 p-4">
+                      <div className="flex items-center gap-3 mb-3 pb-3 border-b border-neutral-800">
+                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-black text-xs font-bold shrink-0">
+                          {(currentUser.name || 'U').split(' ').map(n => n[0] || '').join('').toUpperCase().slice(0, 2)}
                         </div>
                         <div className="flex flex-col flex-1 min-w-0">
-                          <span className="text-sm font-medium text-white truncate">{currentUser.name}</span>
-                          <span className="text-xs text-gray-400 truncate">{currentUser.email}</span>
+                          <span className="text-xs font-semibold text-white truncate">{currentUser.name || 'User'}</span>
+                          <span className="text-[11px] font-mono text-neutral-400 truncate">{currentUser.email}</span>
                         </div>
                       </div>
                       <button
@@ -684,9 +688,9 @@ export default function DashboardPage() {
                           setShowUserDropdown(false);
                           handleLogout();
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-gray-800 rounded-md transition-colors cursor-pointer"
+                        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-300 hover:bg-neutral-900 rounded-lg transition-colors cursor-pointer"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
                         Logout
@@ -700,63 +704,63 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="px-4 md:px-8 py-4 md:py-6">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
-          <div className="bg-[#0a0a0a] border border-gray-800 rounded-lg p-4 md:p-5">
+      <main className="px-4 md:px-8 py-6 max-w-7xl mx-auto">
+        {/* Metric Cards (Grid of 4) */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 md:gap-4 mb-6">
+          <div className="bg-neutral-950/60 border border-neutral-800/80 rounded-xl p-4.5 hover:border-neutral-700/80 transition-all duration-200 shadow-xs">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs text-gray-400 uppercase">Total Tasks</p>
-                <p className="text-xl md:text-2xl font-semibold mt-2">{stats.total}</p>
-                <p className="text-xs text-gray-500 mt-1 hidden sm:block">+2 from last week</p>
+                <p className="text-[11px] font-mono uppercase tracking-wider text-neutral-400">Total Tasks</p>
+                <p className="text-2xl font-mono font-bold tracking-tight text-white mt-1">{stats.total}</p>
+                <p className="text-[11px] text-neutral-500 mt-1 hidden sm:block font-mono">+2 from last week</p>
               </div>
-              <div className="bg-purple-500/10 p-2 rounded-md">
-                <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center">
+                <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
             </div>
           </div>
 
-          <div className="bg-[#0a0a0a] border border-gray-800 rounded-lg p-4 md:p-5">
+          <div className="bg-neutral-950/60 border border-neutral-800/80 rounded-xl p-4.5 hover:border-neutral-700/80 transition-all duration-200 shadow-xs">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs text-gray-400 uppercase">In Progress</p>
-                <p className="text-xl md:text-2xl font-semibold mt-2">{stats.inProgress}</p>
-                <p className="text-xs text-gray-500 mt-1 hidden sm:block">{stats.inProgress} active now</p>
+                <p className="text-[11px] font-mono uppercase tracking-wider text-neutral-400">In Progress</p>
+                <p className="text-2xl font-mono font-bold tracking-tight text-white mt-1">{stats.inProgress}</p>
+                <p className="text-[11px] text-neutral-500 mt-1 hidden sm:block font-mono">{stats.inProgress} active now</p>
               </div>
-              <div className="bg-blue-500/10 p-2 rounded-md">
-                <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center">
+                <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
             </div>
           </div>
 
-          <div className="bg-[#0a0a0a] border border-gray-800 rounded-lg p-4 md:p-5">
+          <div className="bg-neutral-950/60 border border-neutral-800/80 rounded-xl p-4.5 hover:border-neutral-700/80 transition-all duration-200 shadow-xs">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs text-gray-400 uppercase">Completed</p>
-                <p className="text-xl md:text-2xl font-semibold mt-2">{stats.completed}</p>
-                <p className="text-xs text-gray-500 mt-1 hidden sm:block">25% completion rate</p>
+                <p className="text-[11px] font-mono uppercase tracking-wider text-neutral-400">Completed</p>
+                <p className="text-2xl font-mono font-bold tracking-tight text-white mt-1">{stats.completed}</p>
+                <p className="text-[11px] text-neutral-500 mt-1 hidden sm:block font-mono">25% completion rate</p>
               </div>
-              <div className="bg-green-500/10 p-2 rounded-md">
-                <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center">
+                <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
             </div>
           </div>
 
-          <div className="bg-[#0a0a0a] border border-gray-800 rounded-lg p-4 md:p-5">
+          <div className="bg-neutral-950/60 border border-neutral-800/80 rounded-xl p-4.5 hover:border-neutral-700/80 transition-all duration-200 shadow-xs">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs text-gray-400 uppercase">To Do</p>
-                <p className="text-xl md:text-2xl font-semibold mt-2">{stats.todo}</p>
-                <p className="text-xs text-gray-500 mt-1 hidden sm:block">3 due this week</p>
+                <p className="text-[11px] font-mono uppercase tracking-wider text-neutral-400">To Do</p>
+                <p className="text-2xl font-mono font-bold tracking-tight text-white mt-1">{stats.todo}</p>
+                <p className="text-[11px] text-neutral-500 mt-1 hidden sm:block font-mono">3 due this week</p>
               </div>
-              <div className="bg-pink-500/10 p-2 rounded-md">
-                <svg className="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center">
+                <svg className="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
@@ -764,66 +768,60 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Pomodoro & Time Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mb-4 md:mb-6">
-          <div className="bg-linear-to-br from-red-500/10 to-orange-500/10 border border-red-500/20 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <div className="bg-red-500/20 p-3 rounded-full">
-                <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400 uppercase">Pomodoros</p>
-                <p className="text-2xl font-bold text-red-400">{stats.totalPomodoros}</p>
-                <p className="text-xs text-gray-500">{Math.round(stats.totalPomodoros * 25)} minutes focused</p>
-              </div>
+        {/* Pomodoro & Time Stats (Grid of 3) */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 md:gap-4 mb-6">
+          <div className="bg-neutral-950/60 border border-neutral-800/80 rounded-xl p-4 flex items-center gap-3.5 hover:border-neutral-700/80 transition-all">
+            <div className="w-10 h-10 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0">
+              <svg className="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-[11px] font-mono uppercase tracking-wider text-neutral-400">Pomodoros</p>
+              <p className="text-xl font-mono font-bold text-white mt-0.5">{stats.totalPomodoros}</p>
+              <p className="text-[11px] font-mono text-neutral-500">{Math.round(stats.totalPomodoros * 25)} mins focused</p>
             </div>
           </div>
 
-          <div className="bg-linear-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <div className="bg-blue-500/20 p-3 rounded-full">
-                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400 uppercase">Time Spent</p>
-                <p className="text-2xl font-bold text-blue-400">
-                  {Math.floor(stats.totalTimeSpent / 60)}h {Math.round(stats.totalTimeSpent % 60)}m
-                </p>
-                <p className="text-xs text-gray-500">Actual work time</p>
-              </div>
+          <div className="bg-neutral-950/60 border border-neutral-800/80 rounded-xl p-4 flex items-center gap-3.5 hover:border-neutral-700/80 transition-all">
+            <div className="w-10 h-10 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0">
+              <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-[11px] font-mono uppercase tracking-wider text-neutral-400">Time Spent</p>
+              <p className="text-xl font-mono font-bold text-white mt-0.5">
+                {Math.floor(stats.totalTimeSpent / 60)}h {Math.round(stats.totalTimeSpent % 60)}m
+              </p>
+              <p className="text-[11px] font-mono text-neutral-500">Actual work time</p>
             </div>
           </div>
 
-          <div className="bg-linear-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <div className="bg-green-500/20 p-3 rounded-full">
-                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs text-gray-400 uppercase">Accuracy</p>
-                <p className="text-2xl font-bold text-green-400">
-                  {stats.totalTimeEstimated > 0 
-                    ? Math.round((stats.totalTimeSpent / stats.totalTimeEstimated) * 100) 
-                    : 0}%
-                </p>
-                <p className="text-xs text-gray-500">
-                  {stats.totalTimeSpent > stats.totalTimeEstimated ? 'Over' : 'Under'} estimated
-                </p>
-              </div>
+          <div className="bg-neutral-950/60 border border-neutral-800/80 rounded-xl p-4 flex items-center gap-3.5 hover:border-neutral-700/80 transition-all">
+            <div className="w-10 h-10 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center shrink-0">
+              <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-[11px] font-mono uppercase tracking-wider text-neutral-400">Accuracy</p>
+              <p className="text-xl font-mono font-bold text-white mt-0.5">
+                {stats.totalTimeEstimated > 0 
+                  ? Math.round((stats.totalTimeSpent / stats.totalTimeEstimated) * 100) 
+                  : 0}%
+              </p>
+              <p className="text-[11px] font-mono text-neutral-500">
+                {stats.totalTimeSpent > stats.totalTimeEstimated ? 'Over' : 'Under'} estimated
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Search */}
-        <div className="mb-4 md:mb-6">
+        {/* Search Input */}
+        <div className="mb-6">
           <div className="relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
@@ -831,13 +829,13 @@ export default function DashboardPage() {
               placeholder="Search tasks..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#0a0a0a] border border-gray-800 rounded-md py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-gray-700"
+              className="w-full bg-neutral-950 border border-neutral-800/80 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-500 focus:ring-1 focus:ring-neutral-500 transition-all"
             />
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-6 md:mb-8 overflow-x-auto pb-2">
+        {/* Filter Tabs */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-none">
           {[
             { key: 'all' as const, label: `All Tasks (${filteredTasks.length})` },
             { key: 'todo' as const, label: `To Do (${todoTasks.length})` },
@@ -847,10 +845,10 @@ export default function DashboardPage() {
             <button
               key={key}
               onClick={() => setActiveTab(key)}
-              className={`px-3 md:px-4 py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-medium transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === key
-                  ? 'bg-[#1a1a1a] text-white'
-                  : 'text-gray-400 hover:text-white hover:bg-[#111]'
+                  ? 'bg-white text-black font-semibold shadow-xs'
+                  : 'text-neutral-400 hover:text-white hover:bg-neutral-900/60'
               }`}
             >
               {label}
@@ -860,15 +858,18 @@ export default function DashboardPage() {
 
         {/* Task Columns */}
         {activeTab === 'all' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             <div>
-              <h2 className="text-sm font-medium text-gray-300 mb-3 md:mb-4">To Do</h2>
+              <div className="flex items-center justify-between mb-3 px-1">
+                <h2 className="text-xs font-mono uppercase tracking-wider text-neutral-400 font-semibold">To Do</h2>
+                <span className="text-xs font-mono text-neutral-500 bg-neutral-900 border border-neutral-800 rounded-md px-2 py-0.5">{todoTasks.length}</span>
+              </div>
               {todoTasks.length === 0 ? (
-                <p className="text-center text-gray-500 text-sm py-10 border border-dashed border-gray-800 rounded-lg">
+                <div className="text-center text-neutral-500 text-xs font-mono py-12 border border-dashed border-neutral-800/80 rounded-xl">
                   No tasks
-                </p>
+                </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {todoTasks.map(task => (
                     <TaskCard 
                       key={task._id} 
@@ -887,13 +888,16 @@ export default function DashboardPage() {
             </div>
 
             <div>
-              <h2 className="text-sm font-medium text-gray-300 mb-3 md:mb-4">In Progress</h2>
+              <div className="flex items-center justify-between mb-3 px-1">
+                <h2 className="text-xs font-mono uppercase tracking-wider text-neutral-400 font-semibold">In Progress</h2>
+                <span className="text-xs font-mono text-neutral-500 bg-neutral-900 border border-neutral-800 rounded-md px-2 py-0.5">{inProgressTasks.length}</span>
+              </div>
               {inProgressTasks.length === 0 ? (
-                <p className="text-center text-gray-500 text-sm py-10 border border-dashed border-gray-800 rounded-lg">
+                <div className="text-center text-neutral-500 text-xs font-mono py-12 border border-dashed border-neutral-800/80 rounded-xl">
                   No tasks
-                </p>
+                </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {inProgressTasks.map(task => (
                     <TaskCard 
                       key={task._id} 
@@ -912,13 +916,16 @@ export default function DashboardPage() {
             </div>
 
             <div>
-              <h2 className="text-sm font-medium text-gray-300 mb-3 md:mb-4">Completed</h2>
+              <div className="flex items-center justify-between mb-3 px-1">
+                <h2 className="text-xs font-mono uppercase tracking-wider text-neutral-400 font-semibold">Completed</h2>
+                <span className="text-xs font-mono text-neutral-500 bg-neutral-900 border border-neutral-800 rounded-md px-2 py-0.5">{completedTasks.length}</span>
+              </div>
               {completedTasks.length === 0 ? (
-                <p className="text-center text-gray-500 text-sm py-10 border border-dashed border-gray-800 rounded-lg">
+                <div className="text-center text-neutral-500 text-xs font-mono py-12 border border-dashed border-neutral-800/80 rounded-xl">
                   No tasks
-                </p>
+                </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {completedTasks.map(task => (
                     <TaskCard 
                       key={task._id} 
@@ -937,13 +944,17 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
+
         {activeTab === 'todo' && (
           <div>
-            <h2 className="text-sm font-medium text-gray-300 mb-3 md:mb-4">To Do Tasks</h2>
+            <div className="flex items-center justify-between mb-3 px-1">
+              <h2 className="text-xs font-mono uppercase tracking-wider text-neutral-400 font-semibold">To Do Tasks</h2>
+              <span className="text-xs font-mono text-neutral-500 bg-neutral-900 border border-neutral-800 rounded-md px-2 py-0.5">{todoTasks.length}</span>
+            </div>
             {todoTasks.length === 0 ? (
-              <p className="text-center text-gray-500 text-sm py-10 border border-dashed border-gray-800 rounded-lg">No to do tasks</p>
+              <div className="text-center text-neutral-500 text-xs font-mono py-12 border border-dashed border-neutral-800/80 rounded-xl">No to do tasks</div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {todoTasks.map(task => (
                   <TaskCard
                     key={task._id}
@@ -961,13 +972,17 @@ export default function DashboardPage() {
             )}
           </div>
         )}
+
         {activeTab === 'inprogress' && (
           <div>
-            <h2 className="text-sm font-medium text-gray-300 mb-3 md:mb-4">In Progress Tasks</h2>
+            <div className="flex items-center justify-between mb-3 px-1">
+              <h2 className="text-xs font-mono uppercase tracking-wider text-neutral-400 font-semibold">In Progress Tasks</h2>
+              <span className="text-xs font-mono text-neutral-500 bg-neutral-900 border border-neutral-800 rounded-md px-2 py-0.5">{inProgressTasks.length}</span>
+            </div>
             {inProgressTasks.length === 0 ? (
-              <p className="text-center text-gray-500 text-sm py-10 border border-dashed border-gray-800 rounded-lg">No in progress tasks</p>
+              <div className="text-center text-neutral-500 text-xs font-mono py-12 border border-dashed border-neutral-800/80 rounded-xl">No in progress tasks</div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {inProgressTasks.map(task => (
                   <TaskCard
                     key={task._id}
@@ -985,13 +1000,17 @@ export default function DashboardPage() {
             )}
           </div>
         )}
+
         {activeTab === 'done' && (
           <div>
-            <h2 className="text-sm font-medium text-gray-300 mb-3 md:mb-4">Completed Tasks</h2>
+            <div className="flex items-center justify-between mb-3 px-1">
+              <h2 className="text-xs font-mono uppercase tracking-wider text-neutral-400 font-semibold">Completed Tasks</h2>
+              <span className="text-xs font-mono text-neutral-500 bg-neutral-900 border border-neutral-800 rounded-md px-2 py-0.5">{completedTasks.length}</span>
+            </div>
             {completedTasks.length === 0 ? (
-              <p className="text-center text-gray-500 text-sm py-10 border border-dashed border-gray-800 rounded-lg">No completed tasks yet</p>
+              <div className="text-center text-neutral-500 text-xs font-mono py-12 border border-dashed border-neutral-800/80 rounded-xl">No completed tasks yet</div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {completedTasks.map(task => (
                   <TaskCard
                     key={task._id}
@@ -1013,25 +1032,25 @@ export default function DashboardPage() {
 
       {/* Floating Action Buttons for Multi-Select */}
       {selectedTasks.size > 0 && (
-        <div className="fixed bottom-4 md:bottom-8 right-4 md:right-8 flex gap-2 md:gap-3 z-50">
-          <div className="bg-purple-600 text-white px-3 md:px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
-            <span className="text-sm md:text-base font-medium">{selectedTasks.size} selected</span>
+        <div className="fixed bottom-6 right-6 flex items-center gap-3 z-50">
+          <div className="bg-neutral-900 border border-neutral-700 text-white px-4 py-2 rounded-xl shadow-2xl flex items-center gap-2">
+            <span className="text-xs font-mono font-medium">{selectedTasks.size} selected</span>
           </div>
           <button
             onClick={handleCancelSelection}
-            className="bg-gray-700 hover:bg-gray-600 text-white p-2 md:p-3 rounded-full shadow-lg transition-colors cursor-pointer"
+            className="bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-neutral-300 p-2.5 rounded-xl shadow-2xl transition-colors cursor-pointer"
             title="Cancel selection"
           >
-            <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
           <button
             onClick={handleBulkDelete}
-            className="bg-red-600 hover:bg-red-700 text-white p-2 md:p-3 rounded-full shadow-lg transition-colors cursor-pointer"
+            className="bg-rose-600 hover:bg-rose-500 text-white p-2.5 rounded-xl shadow-2xl transition-colors cursor-pointer"
             title="Delete selected tasks"
           >
-            <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </button>
@@ -1194,23 +1213,23 @@ function TeamModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-end md:items-center justify-center z-50 p-0 md:p-4">
-      <div className="bg-[#0a0a0a] border-t md:border border-gray-800 rounded-t-2xl md:rounded-lg w-full max-w-2xl p-5 md:p-6 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4 md:mb-6">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-end md:items-center justify-center z-50 p-0 md:p-4">
+      <div className="bg-neutral-950 border-t md:border border-neutral-800 rounded-t-2xl md:rounded-2xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2">
-              <svg className="w-5 h-5 md:w-6 md:h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+              <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
               Friends
             </h2>
-            <p className="text-xs md:text-sm text-gray-400 mt-1">Add friends to assign tasks</p>
+            <p className="text-xs text-neutral-400 mt-0.5">Add friends to assign tasks</p>
           </div>
           <div className="flex items-center gap-2">
             {members.length > 0 && (
               <button
                 onClick={handleCleanupDuplicates}
-                className="text-xs text-gray-400 hover:text-yellow-400 active:text-yellow-500 transition-colors px-2 py-1 border border-gray-700 rounded hover:border-yellow-500 cursor-pointer"
+                className="text-xs font-mono text-neutral-400 hover:text-amber-400 transition-colors px-2.5 py-1 border border-neutral-800 rounded-lg hover:border-amber-500/50 cursor-pointer"
                 title="Remove duplicate friends"
               >
                 🧹 Cleanup
@@ -1218,7 +1237,7 @@ function TeamModal({
             )}
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-white active:text-gray-300 transition-colors text-2xl md:text-xl leading-none cursor-pointer"
+              className="text-neutral-400 hover:text-white transition-colors text-lg leading-none cursor-pointer p-1"
             >
               ✕
             </button>
@@ -1226,15 +1245,15 @@ function TeamModal({
         </div>
 
         {/* Add Friend Form */}
-        <form onSubmit={handleAddMember} className="mb-4 md:mb-6 p-3 md:p-4 bg-black border border-gray-800 rounded-lg">
-          <h3 className="text-sm font-medium mb-3">Add New Friend</h3>
+        <form onSubmit={handleAddMember} className="mb-6 p-4 bg-black border border-neutral-800/80 rounded-xl">
+          <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-400 mb-3">Add New Friend</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Name"
-              className="bg-[#0a0a0a] border border-gray-800 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+              className="bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white text-xs placeholder-neutral-600 focus:outline-none focus:border-neutral-500"
               required
             />
             <input
@@ -1242,7 +1261,7 @@ function TeamModal({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
-              className="bg-[#0a0a0a] border border-gray-800 rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+              className="bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white text-xs placeholder-neutral-600 focus:outline-none focus:border-neutral-500"
               required
             />
           </div>
@@ -1250,7 +1269,7 @@ function TeamModal({
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="flex-1 bg-[#0a0a0a] border border-gray-800 rounded-md px-3 py-2.5 md:py-2 text-white text-base md:text-sm focus:outline-none focus:border-blue-500"
+              className="flex-1 bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white text-xs focus:outline-none focus:border-neutral-500"
             >
               <option value="friend">Friend</option>
               <option value="close friend">Close Friend</option>
@@ -1259,7 +1278,7 @@ function TeamModal({
             <button
               type="submit"
               disabled={isAdding}
-              className="px-4 py-3 md:py-2 bg-gray-200 text-black rounded-md text-base md:text-sm font-medium hover:bg-gray-300 active:bg-gray-400 disabled:opacity-50 transition-colors cursor-pointer"
+              className="px-4 py-2 bg-white text-black rounded-lg text-xs font-semibold hover:bg-neutral-200 disabled:opacity-50 transition-colors cursor-pointer"
             >
               {isAdding ? 'Adding...' : 'Add Friend'}
             </button>
@@ -1268,35 +1287,35 @@ function TeamModal({
 
         {/* Friends List */}
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-gray-400 mb-3">
+          <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-400 mb-3">
             {members.length} {members.length === 1 ? 'Friend' : 'Friends'}
           </h3>
           {members.length === 0 ? (
-            <p className="text-center text-gray-500 text-sm py-8 border border-dashed border-gray-800 rounded-lg">
+            <div className="text-center text-neutral-500 text-xs font-mono py-8 border border-dashed border-neutral-800 rounded-xl">
               No friends yet. Add your first friend above.
-            </p>
+            </div>
           ) : (
             members.map((member) => (
               <div
                 key={member._id}
-                className="flex items-center justify-between p-3 md:p-3 bg-black border border-gray-800 rounded-lg hover:border-gray-700 active:border-gray-600 transition-colors"
+                className="flex items-center justify-between p-3 bg-black border border-neutral-800/80 rounded-xl hover:border-neutral-700 transition-colors"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-10 h-10 md:w-10 md:h-10 shrink-0 rounded-full bg-white flex items-center justify-center text-black font-medium text-sm">
+                  <div className="w-8 h-8 shrink-0 rounded-full bg-white flex items-center justify-center text-black font-bold text-xs">
                     {getInitials(member.name)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm md:text-sm font-medium truncate">{member.name}</p>
-                    <p className="text-xs text-gray-400 truncate">{member.email}</p>
-                    <div className="flex gap-2 mt-1 flex-wrap">
-                      <span className="px-2 py-0.5 text-xs rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                    <p className="text-xs font-medium text-white truncate">{member.name}</p>
+                    <p className="text-[11px] font-mono text-neutral-400 truncate">{member.email}</p>
+                    <div className="flex gap-1.5 mt-1 flex-wrap">
+                      <span className="px-2 py-0.5 text-[10px] font-mono rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
                         {member.role}
                       </span>
                       {(member as any).status && (
-                        <span className={`px-2 py-0.5 text-xs rounded-full ${
-                          (member as any).status === 'accepted' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
-                          (member as any).status === 'declined' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
-                          'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+                        <span className={`px-2 py-0.5 text-[10px] font-mono rounded ${
+                          (member as any).status === 'accepted' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                          (member as any).status === 'declined' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' :
+                          'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                         }`}>
                           {(member as any).status === 'accepted' ? '✓ Accepted' :
                            (member as any).status === 'declined' ? '✗ Declined' :
@@ -1308,10 +1327,10 @@ function TeamModal({
                 </div>
                 <button
                   onClick={() => handleRemoveMember(member._id)}
-                  className="p-2.5 md:p-2 hover:bg-gray-800 active:bg-gray-700 rounded text-gray-400 hover:text-red-400 transition-colors shrink-0 ml-2 cursor-pointer"
+                  className="p-2 hover:bg-neutral-900 rounded-lg text-neutral-400 hover:text-rose-400 transition-colors shrink-0 ml-2 cursor-pointer"
                   title="Remove friend"
                 >
-                  <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                 </button>
@@ -1350,24 +1369,24 @@ function AIBreakdownModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-end md:items-center justify-center z-50 p-0 md:p-4">
-      <div className="bg-[#0a0a0a] border-t md:border border-gray-800 rounded-t-2xl md:rounded-lg w-full max-w-2xl p-5 md:p-6 max-h-[90vh] md:max-h-[85vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-end md:items-center justify-center z-50 p-0 md:p-4">
+      <div className="bg-neutral-950 border-t md:border border-neutral-800 rounded-t-2xl md:rounded-2xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg md:text-xl font-semibold flex items-center gap-2">
-            <svg className="w-5 h-5 md:w-6 md:h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
             AI Task Breakdown
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white active:text-gray-300 transition-colors text-2xl md:text-xl leading-none cursor-pointer"
+            className="text-neutral-400 hover:text-white transition-colors text-lg leading-none cursor-pointer p-1"
           >
             ✕
           </button>
         </div>
         
-        <p className="text-sm text-gray-400 mb-4">
+        <p className="text-xs text-neutral-400 mb-4 leading-relaxed">
           Describe a large or complex task, and AI will break it down into actionable sub-tasks.
         </p>
 
@@ -1375,13 +1394,13 @@ function AIBreakdownModal({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Example: Plan a marketing campaign, prepare for an exam, organize a team event, build a new feature..."
-          className="w-full h-40 md:h-40 bg-black border border-gray-800 rounded-lg p-3 md:p-3 text-white resize-none focus:outline-none focus:border-purple-500 placeholder:text-gray-600 text-base"
+          className="w-full h-36 bg-black border border-neutral-800 rounded-xl p-3.5 text-sm text-white resize-none focus:outline-none focus:border-neutral-500 placeholder:text-neutral-600 transition-all font-sans"
         />
 
-        <div className="flex flex-col-reverse md:flex-row justify-end gap-3 md:gap-2 mt-4">
+        <div className="flex flex-col-reverse md:flex-row justify-end gap-2.5 mt-5">
           <button
             onClick={onClose}
-            className="px-4 py-3 md:py-2 border border-gray-800 rounded-lg hover:bg-[#1a1a1a] active:bg-gray-800 transition-colors font-medium md:hidden cursor-pointer"
+            className="px-4 py-2 border border-neutral-800 rounded-lg text-neutral-300 hover:bg-neutral-900 transition-colors text-xs font-medium md:hidden cursor-pointer"
             disabled={isLoading}
           >
             Cancel
@@ -1389,18 +1408,18 @@ function AIBreakdownModal({
           <button
             onClick={handleSubmit}
             disabled={isLoading || !value.trim()}
-            className="px-4 py-3 md:py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 active:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors font-medium cursor-pointer"
+            className="px-4 py-2 bg-white text-black rounded-lg hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors text-xs font-semibold cursor-pointer shadow-xs"
           >
             {isLoading ? (
               <>
-                <svg className="animate-spin w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="animate-spin w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
                 Generating...
               </>
             ) : (
               <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
                 Generate Sub-Tasks
@@ -1439,46 +1458,46 @@ function TaskModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-end md:items-center justify-center z-50 p-0 md:p-4">
-      <div className="bg-[#0a0a0a] border-t md:border border-gray-800 rounded-t-2xl md:rounded-lg max-w-md w-full p-5 md:p-6 max-h-[90vh] md:max-h-[85vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-end md:items-center justify-center z-50 p-0 md:p-4">
+      <div className="bg-neutral-950 border-t md:border border-neutral-800 rounded-t-2xl md:rounded-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg md:text-xl font-semibold">{task ? 'Edit Task' : 'New Task'}</h2>
+          <h2 className="text-lg font-bold text-white tracking-tight">{task ? 'Edit Task' : 'New Task'}</h2>
           <button
             onClick={onClose}
             type="button"
-            className="text-gray-400 hover:text-white p-2 -mr-2 cursor-pointer"
+            className="text-neutral-400 hover:text-white p-1 cursor-pointer text-lg leading-none"
           >
             ✕
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Title</label>
+            <label className="block text-xs font-mono uppercase tracking-wider text-neutral-400 mb-1.5">Title</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-black border border-gray-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-gray-600"
+              className="w-full bg-black border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-neutral-500 transition-all"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Description</label>
+            <label className="block text-xs font-mono uppercase tracking-wider text-neutral-400 mb-1.5">Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-black border border-gray-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-gray-600"
+              className="w-full bg-black border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-neutral-500 transition-all"
               rows={3}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Status</label>
+            <label className="block text-xs font-mono uppercase tracking-wider text-neutral-400 mb-1.5">Status</label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as any)}
-              className="w-full bg-black border border-gray-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-gray-600"
+              className="w-full bg-black border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-neutral-500 transition-all"
             >
               <option value="todo">To Do</option>
               <option value="inprogress">In Progress</option>
@@ -1487,11 +1506,11 @@ function TaskModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Priority</label>
+            <label className="block text-xs font-mono uppercase tracking-wider text-neutral-400 mb-1.5">Priority</label>
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as any)}
-              className="w-full bg-black border border-gray-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-gray-600"
+              className="w-full bg-black border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-neutral-500 transition-all"
             >
               <option value="low">Low</option>
               <option value="medium">Medium</option>
@@ -1500,11 +1519,11 @@ function TaskModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Assignee</label>
+            <label className="block text-xs font-mono uppercase tracking-wider text-neutral-400 mb-1.5">Assignee</label>
             <select
               value={assignee}
               onChange={(e) => setAssignee(e.target.value)}
-              className="w-full bg-black border border-gray-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-gray-600"
+              className="w-full bg-black border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-neutral-500 transition-all"
             >
               <option value="">Unassigned</option>
               {teamMembers.map((member) => (
@@ -1516,24 +1535,24 @@ function TaskModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Due Date</label>
+            <label className="block text-xs font-mono uppercase tracking-wider text-neutral-400 mb-1.5">Due Date</label>
             <input
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full bg-black border border-gray-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-gray-600"
+              className="w-full bg-black border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-neutral-500 transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="block text-xs font-mono uppercase tracking-wider text-neutral-400 mb-1.5">
               Estimated Time (minutes)
             </label>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setEstimatedMinutes(m => Math.max(0, m - 5))}
-                className="px-3 py-2 rounded-md bg-gray-900 border border-gray-800 text-gray-300 hover:text-white hover:border-gray-700 active:scale-95 transition cursor-pointer"
+                className="px-3 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 text-xs font-mono hover:text-white hover:border-neutral-700 transition cursor-pointer"
                 aria-label="Decrease estimate by 5 minutes"
               >−5</button>
               <input
@@ -1542,56 +1561,60 @@ function TaskModal({
                 placeholder="60"
                 value={estimatedMinutes || ''}
                 onChange={(e) => setEstimatedMinutes(parseInt(e.target.value) || 0)}
-                className="flex-1 bg-black border border-gray-800 rounded-md px-3 py-2 text-white focus:outline-none focus:border-gray-600 appearance-none"
+                className="flex-1 bg-black border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-neutral-500 font-mono text-center appearance-none"
                 aria-label="Estimated minutes"
               />
               <button
                 type="button"
                 onClick={() => setEstimatedMinutes(m => m + 5)}
-                className="px-3 py-2 rounded-md bg-gray-900 border border-gray-800 text-gray-300 hover:text-white hover:border-gray-700 active:scale-95 transition cursor-pointer"
+                className="px-3 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-neutral-300 text-xs font-mono hover:text-white hover:border-neutral-700 transition cursor-pointer"
                 aria-label="Increase estimate by 5 minutes"
               >+5</button>
             </div>
-            <div className="flex flex-wrap gap-2 mt-2">
+            <div className="flex flex-wrap gap-1.5 mt-2">
               {[25,50,60,90,120].map(preset => (
                 <button
                   key={preset}
                   type="button"
                   onClick={() => setEstimatedMinutes(preset)}
-                  className={`text-xs px-2 py-1 rounded border ${estimatedMinutes === preset ? 'bg-blue-600 border-blue-600 text-white' : 'border-gray-700 text-gray-400 hover:border-gray-600 hover:text-white'} transition cursor-pointer`}
+                  className={`text-[11px] font-mono px-2 py-1 rounded-md border ${
+                    estimatedMinutes === preset 
+                      ? 'bg-white text-black border-white font-semibold' 
+                      : 'border-neutral-800 text-neutral-400 hover:border-neutral-700 hover:text-white'
+                  } transition cursor-pointer`}
                   aria-label={`Set estimate to ${preset} minutes`}
                 >{preset}m</button>
               ))}
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-[11px] font-mono text-neutral-500 mt-2">
               💡 Helps with Pomodoro planning (1 Pomodoro = 25 minutes)
             </p>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-2.5 pt-3">
             <button
               type="submit"
-              className="flex-1 bg-white text-black py-3 md:py-2 rounded-md font-medium hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer"
+              className="flex-1 bg-white text-black py-2.5 rounded-lg text-xs font-semibold hover:bg-neutral-200 transition-colors shadow-xs cursor-pointer"
             >
               {task ? 'Update' : 'Create'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-gray-800 text-white py-3 md:py-2 rounded-md font-medium hover:bg-gray-700 active:bg-gray-600 transition-colors md:hidden cursor-pointer"
+              className="flex-1 bg-neutral-900 text-white py-2.5 rounded-lg text-xs font-medium hover:bg-neutral-800 transition-colors md:hidden cursor-pointer"
             >
               Cancel
             </button>
           </div>
           
           {task && (
-            <div className="pt-3 border-t border-gray-800">
+            <div className="pt-3 border-t border-neutral-800">
               <button
                 type="button"
                 onClick={() => setShowAssignToFriend(true)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 md:py-2 rounded-md font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full bg-neutral-900 border border-neutral-800 hover:border-neutral-700 text-white py-2.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
                 Assign to Friend
@@ -1656,60 +1679,60 @@ function TaskCard({
   const getStatusIcon = () => {
     if (task.status === 'done') {
       return (
-        <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       );
     }
     if (task.status === 'inprogress') {
       return (
-        <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       );
     }
     return (
-      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10" strokeWidth={2} />
+      <svg className="w-4 h-4 text-neutral-600 shrink-0 hover:text-neutral-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" strokeWidth={1.5} />
       </svg>
     );
   };
 
   const getPriorityColor = () => {
-    if (task.priority === 'high') return 'text-red-400 bg-red-500/10 border-red-500/20';
-    if (task.priority === 'medium') return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20';
+    if (task.priority === 'high') return 'text-rose-400 bg-rose-500/10 border-rose-500/20';
+    if (task.priority === 'medium') return 'text-amber-400 bg-amber-500/10 border-amber-500/20';
     return 'text-blue-400 bg-blue-500/10 border-blue-500/20';
   };
 
   const getInitials = (name?: string) => {
     if (!name) return '--';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
   const formatDate = (date?: string) => {
     if (!date) return '';
-    return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
   return (
-    <div className={`bg-[#0a0a0a] border rounded-lg p-3 md:p-4 hover:border-gray-700 transition-colors group relative ${
-      isSelected ? 'border-purple-500 bg-purple-500/5' : 'border-gray-800'
+    <div className={`bg-neutral-950/80 border rounded-xl p-4 hover:border-neutral-700 transition-all duration-200 group relative ${
+      isSelected ? 'border-purple-500/80 bg-purple-500/5' : 'border-neutral-800/80'
     }`}>
-      <div className="flex items-start gap-2 md:gap-3 mb-3">
+      <div className="flex items-start gap-2.5 mb-2.5">
         {/* Selection Checkbox */}
         {(isSelectionMode || isSelected) && onSelect && (
           <button
             onClick={() => onSelect(task._id)}
             className="shrink-0 mt-0.5 cursor-pointer"
           >
-            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+            <div className={`w-4.5 h-4.5 rounded border flex items-center justify-center transition-colors ${
               isSelected 
-                ? 'bg-purple-600 border-purple-600' 
-                : 'border-gray-600 hover:border-purple-500'
+                ? 'bg-white border-white text-black' 
+                : 'border-neutral-700 hover:border-neutral-500'
             }`}>
               {isSelected && (
-                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                <svg className="w-3 h-3 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               )}
             </div>
@@ -1719,15 +1742,15 @@ function TaskCard({
         <button
           onClick={isSelectionMode ? () => onSelect?.(task._id) : handleCircleClick}
           onContextMenu={handleRightClick}
-          className="cursor-pointer hover:scale-110 active:scale-95 transition-transform shrink-0 p-1 -m-1"
+          className="cursor-pointer hover:scale-110 active:scale-95 transition-transform shrink-0 mt-0.5 p-0.5 -m-0.5"
           title={isSelectionMode ? 'Select task' : task.status === 'todo' ? 'Click to start' : task.status === 'inprogress' ? 'Click to complete' : 'Click to reset'}
         >
           {getStatusIcon()}
         </button>
         <div className="flex-1 min-w-0">
-          <h3 className="text-xs md:text-sm font-medium wrap-break-word">{task.title}</h3>
+          <h3 className="text-xs md:text-sm font-semibold text-white tracking-tight leading-snug wrap-break-word">{task.title}</h3>
           {task.priority && (
-            <span className={`inline-block mt-1 md:mt-2 px-1.5 md:px-2 py-0.5 text-xs rounded border ${getPriorityColor()}`}>
+            <span className={`inline-block mt-1.5 px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider rounded-md border ${getPriorityColor()}`}>
               {task.priority}
             </span>
           )}
@@ -1741,15 +1764,15 @@ function TaskCard({
             className="fixed inset-0 z-40" 
             onClick={() => setShowMenu(false)}
           />
-          <div className="absolute top-12 left-4 z-50 bg-[#1a1a1a] border border-gray-700 rounded-lg shadow-lg overflow-hidden">
+          <div className="absolute top-10 left-4 z-50 bg-neutral-900 border border-neutral-700 rounded-xl shadow-2xl overflow-hidden">
             <button
               onClick={() => {
                 onDelete(task._id);
                 setShowMenu(false);
               }}
-              className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2 cursor-pointer"
+              className="w-full px-4 py-2 text-left text-xs text-rose-400 hover:bg-rose-500/10 transition-colors flex items-center gap-2 cursor-pointer font-mono"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
               Delete Task
@@ -1759,15 +1782,15 @@ function TaskCard({
       )}
 
       {task.description && (
-        <p className="text-xs md:text-sm text-gray-400 mb-3 md:mb-4 wrap-break-word">{task.description}</p>
+        <p className="text-xs text-neutral-400 mb-3 leading-relaxed wrap-break-word">{task.description}</p>
       )}
 
       {/* Time Tracking Info */}
       {(task.pomodoroSessions || task.estimatedMinutes || task.actualMinutes) && (
-        <div className="flex items-center gap-3 mb-3 text-xs">
+        <div className="flex items-center gap-3 mb-3 text-[11px] font-mono">
           {task.pomodoroSessions && task.pomodoroSessions > 0 && (
-            <div className="flex items-center gap-1 text-red-400">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-1 text-rose-400">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>{task.pomodoroSessions} 🍅</span>
@@ -1775,15 +1798,15 @@ function TaskCard({
           )}
           {task.actualMinutes && task.actualMinutes > 0 && (
             <div className="flex items-center gap-1 text-blue-400">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>{Math.round(task.actualMinutes)}m</span>
             </div>
           )}
           {task.estimatedMinutes && task.estimatedMinutes > 0 && (
-            <div className="flex items-center gap-1 text-gray-500">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center gap-1 text-neutral-500">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
               <span>est. {task.estimatedMinutes}m</span>
@@ -1792,42 +1815,42 @@ function TaskCard({
         </div>
       )}
 
-      <div className="flex items-center justify-between pt-2 md:pt-3 border-t border-gray-800">
+      <div className="flex items-center justify-between pt-2.5 border-t border-neutral-900">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-xs">
+          <div className="w-5 h-5 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-[10px] font-mono text-neutral-300">
             {getInitials(task.assignee)}
           </div>
-          <span className="text-xs text-gray-400">{task.assignee || 'Unassigned'}</span>
+          <span className="text-xs text-neutral-400">{task.assignee || 'Unassigned'}</span>
         </div>
         <div className="flex items-center gap-2">
           {task.dueDate && (
-            <span className="text-xs text-gray-500">{formatDate(task.dueDate)}</span>
+            <span className="text-[11px] font-mono text-neutral-500">{formatDate(task.dueDate)}</span>
           )}
-          <div className="flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
             <button
               onClick={() => onStartPomodoro?.(task)}
-              className="p-1.5 md:p-1 hover:bg-gray-800 active:bg-gray-700 rounded text-gray-400 hover:text-blue-400 cursor-pointer"
+              className="p-1 hover:bg-neutral-900 rounded text-neutral-400 hover:text-blue-400 transition-colors cursor-pointer"
               title="Start Pomodoro Timer"
             >
-              <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </button>
             <button
               onClick={() => onEdit(task)}
-              className="p-1.5 md:p-1 hover:bg-gray-800 active:bg-gray-700 rounded text-gray-400 hover:text-white cursor-pointer"
+              className="p-1 hover:bg-neutral-900 rounded text-neutral-400 hover:text-white transition-colors cursor-pointer"
               title="Edit"
             >
-              <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
             </button>
             <button
               onClick={() => onDelete(task._id)}
-              className="p-1.5 md:p-1 hover:bg-gray-800 active:bg-gray-700 rounded text-gray-400 hover:text-red-400 cursor-pointer"
+              className="p-1 hover:bg-neutral-900 rounded text-neutral-400 hover:text-rose-400 transition-colors cursor-pointer"
               title="Delete"
             >
-              <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </button>
@@ -1888,30 +1911,30 @@ function AssignTaskModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-[#0a0a0a] border border-gray-800 rounded-xl max-w-md w-full p-6">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+      <div className="bg-neutral-950 border border-neutral-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-white">Assign Task to Friend</h3>
+          <h3 className="text-base font-bold text-white tracking-tight">Assign Task to Friend</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white p-2 cursor-pointer"
+            className="text-neutral-400 hover:text-white p-1 cursor-pointer text-lg leading-none"
             disabled={isAssigning}
           >
             ✕
           </button>
         </div>
 
-        <div className="mb-4 p-4 bg-black border border-gray-800 rounded-lg">
-          <h4 className="font-semibold text-white mb-1">{task.title}</h4>
+        <div className="mb-4 p-4 bg-black border border-neutral-800/80 rounded-xl">
+          <h4 className="font-semibold text-white text-xs mb-1">{task.title}</h4>
           {task.description && (
-            <p className="text-sm text-gray-400 line-clamp-2">{task.description}</p>
+            <p className="text-xs text-neutral-400 line-clamp-2 leading-relaxed">{task.description}</p>
           )}
-          <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+          <div className="flex items-center gap-3 mt-2 text-[11px] font-mono text-neutral-500">
             {task.priority && (
-              <span className={`px-2 py-1 rounded ${
-                task.priority === 'high' ? 'bg-red-500/10 text-red-400' :
-                task.priority === 'medium' ? 'bg-yellow-500/10 text-yellow-400' :
-                'bg-blue-500/10 text-blue-400'
+              <span className={`px-2 py-0.5 rounded ${
+                task.priority === 'high' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' :
+                task.priority === 'medium' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                'bg-blue-500/10 text-blue-400 border border-blue-500/20'
               }`}>
                 {task.priority}
               </span>
@@ -1923,22 +1946,22 @@ function AssignTaskModal({
         </div>
 
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-xs font-mono uppercase tracking-wider text-neutral-400 mb-2">
             Select Friend
           </label>
           {friends.length === 0 ? (
-            <p className="text-sm text-gray-500 text-center py-4 border border-dashed border-gray-800 rounded-lg">
+            <div className="text-xs text-neutral-500 text-center py-6 border border-dashed border-neutral-800 rounded-xl font-mono">
               No friends available. Add friends from the Friends menu.
-            </p>
+            </div>
           ) : (
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {friends.map((friend) => (
                 <label
                   key={friend._id}
-                  className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
+                  className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
                     selectedFriendId === friend._id
-                      ? 'border-blue-500 bg-blue-500/10'
-                      : 'border-gray-800 hover:border-gray-700'
+                      ? 'border-white bg-neutral-900'
+                      : 'border-neutral-800 hover:border-neutral-700'
                   }`}
                 >
                   <input
@@ -1947,14 +1970,14 @@ function AssignTaskModal({
                     value={friend._id}
                     checked={selectedFriendId === friend._id}
                     onChange={(e) => setSelectedFriendId(e.target.value)}
-                    className="w-4 h-4 text-blue-600"
+                    className="w-4 h-4 text-white focus:ring-0"
                   />
-                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-black text-xs font-medium">
-                    {friend.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                  <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center text-black text-xs font-bold shrink-0">
+                    {friend.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                   </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-white text-sm">{friend.name}</p>
-                    <p className="text-xs text-gray-400">{friend.email}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-white text-xs truncate">{friend.name}</p>
+                    <p className="text-[11px] font-mono text-neutral-400 truncate">{friend.email}</p>
                   </div>
                 </label>
               ))}
@@ -1962,10 +1985,10 @@ function AssignTaskModal({
           )}
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-2.5">
           <button
             onClick={onClose}
-            className="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-medium transition-colors cursor-pointer"
+            className="flex-1 bg-neutral-900 hover:bg-neutral-800 text-neutral-300 py-2.5 px-4 rounded-lg text-xs font-medium transition-colors cursor-pointer"
             disabled={isAssigning}
           >
             Cancel
@@ -1973,7 +1996,7 @@ function AssignTaskModal({
           <button
             onClick={handleAssign}
             disabled={!selectedFriendId || isAssigning}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white py-2 px-4 rounded-lg font-medium transition-colors cursor-pointer"
+            className="flex-1 bg-white hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed text-black py-2.5 px-4 rounded-lg text-xs font-semibold transition-colors cursor-pointer shadow-xs"
           >
             {isAssigning ? 'Assigning...' : 'Assign Task'}
           </button>
@@ -1993,20 +2016,20 @@ function AssignmentModal({
   onRespond: (assignedTaskId: string, action: 'accept' | 'reject') => void;
 }) {
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-[#0a0a0a] border border-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+      <div className="bg-neutral-950 border border-neutral-800 rounded-2xl shadow-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-white">Pending Task Assignments</h2>
+          <h2 className="text-lg font-bold text-white tracking-tight">Pending Task Assignments</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white p-2 cursor-pointer"
+            className="text-neutral-400 hover:text-white p-1 cursor-pointer text-lg leading-none"
           >
             ✕
           </button>
         </div>
 
         {assignments.length === 0 ? (
-          <div className="text-center text-gray-500 py-8">
+          <div className="text-center text-neutral-500 font-mono text-xs py-10">
             No pending assignments
           </div>
         ) : (
@@ -2014,38 +2037,38 @@ function AssignmentModal({
             {assignments.map((assignment) => (
               <div
                 key={assignment._id}
-                className="bg-black border border-gray-800 rounded-lg p-4"
+                className="bg-black border border-neutral-800/80 rounded-xl p-4"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-white mb-1">
+                    <h3 className="text-sm font-semibold text-white mb-1 tracking-tight">
                       {assignment.title}
                     </h3>
-                    <p className="text-sm text-gray-400">
-                      From: <span className="text-blue-400">{assignment.assignedBy.name}</span> ({assignment.assignedBy.email})
+                    <p className="text-xs text-neutral-400">
+                      From: <span className="text-white font-medium">{assignment.assignedBy.name}</span> <span className="font-mono text-[11px]">({assignment.assignedBy.email})</span>
                     </p>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider border ${
                     assignment.priority === 'high' 
-                      ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+                      ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
                       : assignment.priority === 'medium'
-                      ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
-                      : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                      ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                      : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
                   }`}>
                     {assignment.priority}
                   </span>
                 </div>
 
                 {assignment.description && (
-                  <p className="text-gray-300 text-sm mb-4">
+                  <p className="text-neutral-300 text-xs mb-4 leading-relaxed">
                     {assignment.description}
                   </p>
                 )}
 
-                <div className="flex items-center gap-4 text-xs text-gray-500 mb-4">
+                <div className="flex items-center gap-4 text-[11px] font-mono text-neutral-500 mb-4">
                   {assignment.estimatedMinutes && (
                     <div className="flex items-center gap-1">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <span>Estimated: {assignment.estimatedMinutes} minutes</span>
@@ -2053,7 +2076,7 @@ function AssignmentModal({
                   )}
                   {assignment.dueDate && (
                     <div className="flex items-center gap-1">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       <span>Due: {new Date(assignment.dueDate).toLocaleDateString()}</span>
@@ -2061,16 +2084,16 @@ function AssignmentModal({
                   )}
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-2.5">
                   <button
                     onClick={() => onRespond(assignment._id, 'accept')}
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium transition-colors cursor-pointer"
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 px-4 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
                   >
                     ✓ Accept
                   </button>
                   <button
                     onClick={() => onRespond(assignment._id, 'reject')}
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-medium transition-colors cursor-pointer"
+                    className="flex-1 bg-rose-600 hover:bg-rose-500 text-white py-2 px-4 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
                   >
                     ✕ Reject
                   </button>

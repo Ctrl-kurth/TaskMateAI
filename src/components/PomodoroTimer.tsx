@@ -171,64 +171,65 @@ export default function PomodoroTimer({ task, onClose, onTimeUpdate }: PomodoroT
   const getModeColor = () => {
     switch (mode) {
       case 'work':
-        return 'from-blue-500 to-purple-600';
+        return 'from-[#ffffff] to-[#a1a1a1]';
       case 'shortBreak':
-        return 'from-green-500 to-emerald-600';
+        return 'from-emerald-400 to-teal-500';
       case 'longBreak':
-        return 'from-orange-500 to-red-600';
+        return 'from-amber-400 to-orange-500';
     }
   };
 
   const getModeIcon = () => {
     switch (mode) {
       case 'work':
-        return <Zap className="w-6 h-6" />;
+        return <Zap className="w-5 h-5 text-black" />;
       case 'shortBreak':
-        return <Coffee className="w-6 h-6" />;
+        return <Coffee className="w-5 h-5 text-black" />;
       case 'longBreak':
-        return <Coffee className="w-6 h-6" />;
+        return <Coffee className="w-5 h-5 text-black" />;
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
-      <div className="bg-[#0a0a0a] border border-gray-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[98vh] overflow-y-auto p-3 sm:p-5 md:p-6 relative">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 selection:bg-neutral-800 selection:text-white">
+      <div className="bg-neutral-950 border border-neutral-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[96vh] overflow-y-auto p-4 sm:p-6 relative">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 sm:top-3 sm:right-3 p-1.5 hover:bg-gray-800 rounded-full transition-colors text-gray-400 hover:text-white z-10"
+          className="absolute top-3.5 right-3.5 p-1.5 hover:bg-neutral-900 rounded-lg transition-colors text-neutral-400 hover:text-white z-10 cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
 
         {/* Task Info */}
-        <div className="mb-3 sm:mb-4 pr-8">
-          <h2 className="text-lg sm:text-xl font-bold text-white mb-1">
-            Focus Mode
-          </h2>
-          <p className="text-xs sm:text-sm text-gray-400 line-clamp-2">
+        <div className="mb-4 pr-8">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-neutral-900 border border-neutral-800 rounded-full mb-2">
+            <Clock className="w-3 h-3 text-neutral-400" />
+            <span className="text-[11px] font-mono uppercase tracking-wider text-neutral-300">Focus Mode</span>
+          </div>
+          <h2 className="text-base sm:text-lg font-bold text-white tracking-tight line-clamp-2">
             {task.title}
-          </p>
+          </h2>
         </div>
 
         {/* Mode Selector */}
-        <div className="flex gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+        <div className="flex gap-1.5 mb-5 p-1 bg-neutral-900 border border-neutral-800/80 rounded-xl">
           <button
             onClick={() => switchMode('work')}
-              className={`flex-1 py-1.5 px-2 sm:py-2 sm:px-4 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+            className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer ${
               mode === 'work'
-                ? 'bg-white text-black'
-                : 'bg-gray-900 text-gray-300 hover:bg-gray-800 border border-gray-800'
+                ? 'bg-white text-black font-semibold shadow-sm'
+                : 'text-neutral-400 hover:text-white'
             }`}
           >
             Work
           </button>
           <button
             onClick={() => switchMode('shortBreak')}
-              className={`flex-1 py-1.5 px-2 sm:py-2 sm:px-4 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+            className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer ${
               mode === 'shortBreak'
-                ? 'bg-white text-black'
-                : 'bg-gray-900 text-gray-300 hover:bg-gray-800 border border-gray-800'
+                ? 'bg-white text-black font-semibold shadow-sm'
+                : 'text-neutral-400 hover:text-white'
             }`}
           >
             <span className="hidden sm:inline">Short Break</span>
@@ -236,10 +237,10 @@ export default function PomodoroTimer({ task, onClose, onTimeUpdate }: PomodoroT
           </button>
           <button
             onClick={() => switchMode('longBreak')}
-              className={`flex-1 py-1.5 px-2 sm:py-2 sm:px-4 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+            className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-medium transition-all cursor-pointer ${
               mode === 'longBreak'
-                ? 'bg-white text-black'
-                : 'bg-gray-900 text-gray-300 hover:bg-gray-800 border border-gray-800'
+                ? 'bg-white text-black font-semibold shadow-sm'
+                : 'text-neutral-400 hover:text-white'
             }`}
           >
             <span className="hidden sm:inline">Long Break</span>
@@ -248,113 +249,113 @@ export default function PomodoroTimer({ task, onClose, onTimeUpdate }: PomodoroT
         </div>
 
         {/* Timer Display */}
-        <div className="relative mb-4 sm:mb-6 max-w-[220px] sm:max-w-[280px] mx-auto">
+        <div className="relative mb-6 max-w-[220px] sm:max-w-[240px] mx-auto">
           {/* Progress Ring */}
           <svg className="w-full h-full" viewBox="0 0 200 200">
             <circle
               cx="100"
               cy="100"
-              r="90"
+              r="88"
               fill="none"
-              stroke="currentColor"
-              strokeWidth="8"
-              className="text-gray-800"
+              stroke="#171717"
+              strokeWidth="6"
             />
             <circle
               cx="100"
               cy="100"
-              r="90"
+              r="88"
               fill="none"
-              stroke="url(#gradient)"
-              strokeWidth="8"
+              stroke="url(#pomodoro-gradient)"
+              strokeWidth="6"
               strokeLinecap="round"
-              strokeDasharray={`${2 * Math.PI * 90}`}
-              strokeDashoffset={`${2 * Math.PI * 90 * (1 - getProgress() / 100)}`}
+              strokeDasharray={`${2 * Math.PI * 88}`}
+              strokeDashoffset={`${2 * Math.PI * 88 * (1 - getProgress() / 100)}`}
               className="transition-all duration-1000"
               style={{ transform: 'rotate(-90deg)', transformOrigin: '50% 50%' }}
             />
             <defs>
-              <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" className={mode === 'work' ? 'text-blue-500' : mode === 'shortBreak' ? 'text-green-500' : 'text-orange-500'} stopColor="currentColor" />
-                <stop offset="100%" className={mode === 'work' ? 'text-purple-600' : mode === 'shortBreak' ? 'text-emerald-600' : 'text-red-600'} stopColor="currentColor" />
+              <linearGradient id="pomodoro-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor={mode === 'work' ? '#ffffff' : mode === 'shortBreak' ? '#34d399' : '#fbbf24'} />
+                <stop offset="100%" stopColor={mode === 'work' ? '#a3a3a3' : mode === 'shortBreak' ? '#10b981' : '#f59e0b'} />
               </linearGradient>
             </defs>
           </svg>
 
           {/* Time and Icon */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <div className={`bg-linear-to-r ${getModeColor()} p-2 rounded-full mb-2 text-white`}>
+            <div className={`bg-gradient-to-r ${getModeColor()} p-2 rounded-full mb-2 shadow-sm`}>
               {getModeIcon()}
             </div>
-            <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">
+            <div className="text-3xl sm:text-4xl font-mono font-bold tracking-tight text-white">
               {formatTime(timeLeft)}
             </div>
-            <div className="text-xs sm:text-sm text-gray-400 mt-1">
+            <div className="text-[11px] font-mono uppercase tracking-wider text-neutral-400 mt-1">
               {mode === 'work' ? 'Focus Time' : mode === 'shortBreak' ? 'Short Break' : 'Long Break'}
             </div>
           </div>
         </div>
 
         {/* Controls */}
-        <div className="flex gap-2 sm:gap-3 mb-3 sm:mb-4">
+        <div className="flex gap-2.5 mb-5">
           <button
             onClick={toggleTimer}
-            className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-semibold bg-white text-black shadow-lg transition-all transform active:scale-95 hover:bg-gray-100"
+            className="flex-1 py-3 rounded-xl text-sm font-semibold bg-white text-black hover:bg-neutral-200 transition-all duration-200 shadow-md cursor-pointer active:scale-98 flex items-center justify-center gap-2"
           >
             {isRunning ? (
-              <span className="flex items-center justify-center gap-2">
-                <Pause className="w-4 h-4 sm:w-5 sm:h-5" />
+              <>
+                <Pause className="w-4 h-4" />
                 Pause
-              </span>
+              </>
             ) : (
-              <span className="flex items-center justify-center gap-2">
-                <Play className="w-4 h-4 sm:w-5 sm:h-5" />
+              <>
+                <Play className="w-4 h-4" />
                 Start
-              </span>
+              </>
             )}
           </button>
           <button
             onClick={resetTimer}
-            className="px-4 sm:px-6 py-3 sm:py-4 rounded-xl font-semibold bg-gray-900 text-gray-300 hover:bg-gray-800 transition-all border border-gray-800 active:scale-95"
+            className="px-4 py-3 rounded-xl font-semibold bg-neutral-900 text-neutral-300 hover:text-white hover:bg-neutral-800 transition-all border border-neutral-800 cursor-pointer active:scale-98"
+            title="Reset Timer"
           >
-            <RotateCcw className="w-4 h-4 sm:w-5 sm:h-5" />
+            <RotateCcw className="w-4 h-4" />
           </button>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-2 mb-3 sm:mb-4">
-          <div className="bg-black border border-gray-800 p-2 sm:p-3 rounded-lg text-center">
-            <div className="text-base sm:text-xl font-bold text-white">
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          <div className="bg-black border border-neutral-800/80 p-2.5 rounded-xl text-center">
+            <div className="text-base font-mono font-bold text-white">
               {completedPomodoros}
             </div>
-            <div className="text-[10px] sm:text-xs text-gray-500 mt-0.5">
-              Pomodoros
+            <div className="text-[10px] font-mono text-neutral-500 uppercase tracking-wider mt-0.5">
+              Sessions
             </div>
           </div>
-          <div className="bg-black border border-gray-800 p-2 sm:p-3 rounded-lg text-center">
-            <div className="text-base sm:text-xl font-bold text-white">
+          <div className="bg-black border border-neutral-800/80 p-2.5 rounded-xl text-center">
+            <div className="text-base font-mono font-bold text-white">
               {task.estimatedMinutes || 0}m
             </div>
-            <div className="text-[10px] sm:text-xs text-gray-500 mt-0.5">
+            <div className="text-[10px] font-mono text-neutral-500 uppercase tracking-wider mt-0.5">
               Estimated
             </div>
           </div>
-          <div className="bg-black border border-gray-800 p-2 sm:p-3 rounded-lg text-center">
-            <div className="text-base sm:text-xl font-bold text-white">
+          <div className="bg-black border border-neutral-800/80 p-2.5 rounded-xl text-center">
+            <div className="text-base font-mono font-bold text-white">
               {Math.round((task.actualMinutes || 0) + sessionMinutes)}m
             </div>
-            <div className="text-[10px] sm:text-xs text-gray-500 mt-0.5">
+            <div className="text-[10px] font-mono text-neutral-500 uppercase tracking-wider mt-0.5">
               Actual
             </div>
           </div>
         </div>
 
         {/* Tips */}
-        <div className="p-2.5 sm:p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-          <p className="text-xs sm:text-sm text-blue-400">
-            💡 <strong>Tip:</strong> {mode === 'work' 
-              ? 'Focus on one task at a time. Close distractions.' 
-              : 'Take a real break! Step away from your screen.'}
+        <div className="p-3 bg-neutral-900/80 border border-neutral-800 rounded-xl text-xs text-neutral-300">
+          <p className="leading-relaxed">
+            <strong className="text-white">Tip:</strong> {mode === 'work' 
+              ? 'Focus on one task at a time. Minimize distractions.' 
+              : 'Take a step away from the screen for a true break.'}
           </p>
         </div>
       </div>
